@@ -20,12 +20,12 @@ func RepoCreateBook (b storage.Book) storage.Book {
 }
 
 func Index(w http.ResponseWriter, r *http.Request) {
-	//w.WriteHeader(http.StatusOK)
-	//fmt.Fprintf(w, "Hello, this is the library resource")
-	if err := json.NewEncoder(w).Encode(storage.GetBooks()); err != nil {
-		log.Fatal(err)
-	}
 	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, "Hello, this is the library resource")
+	//if err := json.NewEncoder(w).Encode(storage.GetBooks()); err != nil {
+	//	log.Fatal(err)
+	//}
+	//w.WriteHeader(http.StatusOK)
 }
 
 func BooksIndex (w http.ResponseWriter, r *http.Request) {
