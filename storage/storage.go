@@ -3,9 +3,11 @@ package storage
 import (
 	"fmt"
 	"io/ioutil"
-	"encoding/json"
 	"os"
 	"path/filepath"
+	"github.com/twinj/uuid"
+	"encoding/json"
+	"log"
 )
 
 type Book struct {
@@ -18,41 +20,30 @@ type Book struct {
 
 type Books []Book
 
-func InitDB() Books {
-	books := Books{
-		Book{
-			ID:		"1349A807-87CA-446C-9740-480238489517",
-			Title:		"Book title1",
-			Genres:		[]string{"detective", "comedy"},
-			Pages:		321,
-			Price:		12.43,
-		},
-		Book{
-			ID:		"C97376B9-6C2E-41E5-9DBE-2E82C0EF114B",
-			Title:		"Book title2",
-			Genres:		[]string{"adventure"},
-			Pages:		234,
-			Price:		25.43,
-		},
-		Book{
-			ID:		"FFAD23EB-8FF4-4E09-82D2-AA33EBE3997F",
-			Title:		"Book title3",
-			Genres:		[]string{"historical"},
-			Pages:		321,
-			Price:		999.00,
-		},
-	}
-	return books
-}
-
-func GetBooks() Books {
-	var books Books
+func GetBooks() []byte {
 	filepath, _ := filepath.Abs("storage/storage.json")
-	file, err := ioutil.ReadFile(filepath)
+	books, err := ioutil.ReadFile(filepath)
     	if err != nil {
         	fmt.Printf("File error: %v\n", err)
         	os.Exit(1)
     	}
-	json.Unmarshal(file, &books)
+
 	return books
+}
+
+func CreateBook(book Book) error {
+	filepath, _ := filepath.Abs("storage/storage.json")
+	book.ID = fmt.Sprint(uuid.NewV4())
+	bookJson, _ := json.Marshal(book)
+	f, err := os.OpenFile(filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if _, err := f.Write(bookJson); err != nil {
+		log.Fatal(err)
+	}
+	if err := f.Close(); err != nil {
+		log.Fatal(err)
+	}
+	return nil
 }
