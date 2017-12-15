@@ -11,12 +11,12 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func Index(w http.ResponseWriter, r *http.Request) {
+func Index(w http.ResponseWriter, _ *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "Hello, this is the library resource")
 }
 
-func BooksIndex (w http.ResponseWriter, r *http.Request) {
+func BooksIndex(w http.ResponseWriter, _ *http.Request) {
 	books, err := storage.GetBooks()
 	if err != nil {
 		log.Fatal(err)
@@ -59,11 +59,24 @@ func GetBook(w http.ResponseWriter, r *http.Request) {
 	id := vars["id"]
 	book, err := storage.GetBook(id)
 	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
 		log.Fatal(err)
+
 	}
 	err = json.NewEncoder(w).Encode(book)
 	if err != nil {
 		log.Fatal(err)
 	}
 	w.WriteHeader(http.StatusOK)
+}
+
+func RemoveBook(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	err := storage.RemoveBook(id)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		log.Fatal(err)
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
