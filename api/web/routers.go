@@ -47,4 +47,10 @@ var routes = Routes{
 		"/books",
 		BookCreate,
 	},
+	Route{
+		"GetBook",
+		"GET",
+		"/book/{id}",
+		GetBook,
+	},
 }

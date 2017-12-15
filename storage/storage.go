@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"github.com/twinj/uuid"
 	"encoding/json"
+	"errors"
 )
 
 type Book struct {
@@ -52,4 +53,19 @@ func CreateBook(book Book) error {
 		return err
 	}
 	return nil
+}
+
+func GetBook(id string) (Book, error) {
+	var b Book
+	books, err := GetBooks()
+	if err != nil {
+		return b, err
+	}
+	for _, book := range books {
+		if id == book.ID {
+			return book, nil
+		}
+	}
+	err  = errors.New("can't find the book with given ID")
+	return b, err
 }

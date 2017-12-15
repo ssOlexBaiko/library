@@ -8,6 +8,7 @@ import (
 	"log"
 	"io/ioutil"
 	"io"
+	"github.com/gorilla/mux"
 )
 
 func Index(w http.ResponseWriter, r *http.Request) {
@@ -51,4 +52,18 @@ func BookCreate(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusCreated)
 	}
+}
+
+func GetBook(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	book, err := storage.GetBook(id)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = json.NewEncoder(w).Encode(book)
+	if err != nil {
+		log.Fatal(err)
+	}
+	w.WriteHeader(http.StatusOK)
 }
