@@ -16,8 +16,14 @@ func Index(w http.ResponseWriter, r *http.Request) {
 }
 
 func BooksIndex (w http.ResponseWriter, r *http.Request) {
-	w.Write(storage.GetBooks())
-	w.WriteHeader(http.StatusOK)
+	books, err := storage.GetBooks()
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = json.NewEncoder(w).Encode(books)
+	if err != nil {
+		log.Fatal(err)
+	}
 	w.WriteHeader(http.StatusOK)
 }
 

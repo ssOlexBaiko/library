@@ -3,47 +3,53 @@ package storage
 import (
 	"fmt"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 	"github.com/twinj/uuid"
 	"encoding/json"
-	"log"
 )
 
 type Book struct {
-	ID	string
-	Title	string
-	Genres	[]string
-	Pages	int
-	Price	float64
+	ID	string 		`json:"id, omitempty"`
+	Title	string		`json:"title, omitempty"`
+	Genres	[]string	`json:"genres, omitempty"`
+	Pages	int		`json:"pages, omitempty"`
+	Price	float64		`json:"price, omitempty"`
 }
 
 type Books []Book
 
-func GetBooks() []byte {
+func GetBooks() (Books, error) {
+	var books Books
 	filepath, _ := filepath.Abs("storage/storage.json")
-	books, err := ioutil.ReadFile(filepath)
+	file, err := ioutil.ReadFile(filepath)
     	if err != nil {
-        	fmt.Printf("File error: %v\n", err)
-        	os.Exit(1)
+		fmt.Printf("File error: %v\n", err)
+		return nil, err
     	}
+	err = json.Unmarshal(file, &books)
+	if err != nil {
+		fmt.Printf("File error: %v\n", err)
+		return nil, err
+	}
 
-	return books
+	return books, nil
 }
 
 func CreateBook(book Book) error {
 	filepath, _ := filepath.Abs("storage/storage.json")
-	book.ID = fmt.Sprint(uuid.NewV4())
-	bookJson, _ := json.Marshal(book)
-	f, err := os.OpenFile(filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	books, err := GetBooks()
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
-	if _, err := f.Write(bookJson); err != nil {
-		log.Fatal(err)
+	book.ID = uuid.NewV4().String()
+	books = append(books, book)
+	booksBytes, err := json.MarshalIndent(books, "", "    ")
+	if err != nil {
+		return err
 	}
-	if err := f.Close(); err != nil {
-		log.Fatal(err)
+	err = ioutil.WriteFile(filepath, booksBytes, 0644)
+	if err != nil {
+		return err
 	}
 	return nil
 }
