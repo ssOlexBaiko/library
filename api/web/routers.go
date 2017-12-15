@@ -50,7 +50,13 @@ var routes = Routes{
 	Route{
 		"GetBook",
 		"GET",
-		"/book/{id}",
+		"/books/{id}",
 		GetBook,
+	},
+	Route{
+		"RemoveBook",
+		"Delete",
+		"/books/{id}",
+		RemoveBook,
 	},
 }

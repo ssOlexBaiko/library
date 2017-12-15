@@ -69,3 +69,37 @@ func GetBook(id string) (Book, error) {
 	err  = errors.New("can't find the book with given ID")
 	return b, err
 }
+
+func RemoveBook(id string) error {
+	var isPresent bool
+	var wantedIndex int
+	filepath, _ := filepath.Abs("storage/storage.json")
+	books, err := GetBooks()
+	if err != nil {
+		return err
+	}
+	for _, book := range books {
+		if id == book.ID {
+			isPresent = true
+		}
+	}
+	if !isPresent {
+		err = errors.New("can't find the book with given ID")
+		return err
+	}
+	for index, book := range books {
+		if id == book.ID {
+			wantedIndex = index
+		}
+	}
+	books = append(books[:wantedIndex], books[wantedIndex+1:]...)
+	booksBytes, err := json.MarshalIndent(books, "", "    ")
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile(filepath, booksBytes, 0644)
+	if err != nil {
+		return err
+	}
+	return nil
+}
