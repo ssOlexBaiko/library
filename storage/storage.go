@@ -3,56 +3,103 @@ package storage
 import (
 	"fmt"
 	"io/ioutil"
-	"encoding/json"
-	"os"
 	"path/filepath"
+	"github.com/twinj/uuid"
+	"encoding/json"
+	"errors"
 )
 
 type Book struct {
-	ID	string
-	Title	string
-	Genres	[]string
-	Pages	int
-	Price	float64
+	ID	string 		`json:"id, omitempty"`
+	Title	string		`json:"title, omitempty"`
+	Genres	[]string	`json:"genres, omitempty"`
+	Pages	int		`json:"pages, omitempty"`
+	Price	float64		`json:"price, omitempty"`
 }
 
 type Books []Book
 
-func InitDB() Books {
-	books := Books{
-		Book{
-			ID:		"1349A807-87CA-446C-9740-480238489517",
-			Title:		"Book title1",
-			Genres:		[]string{"detective", "comedy"},
-			Pages:		321,
-			Price:		12.43,
-		},
-		Book{
-			ID:		"C97376B9-6C2E-41E5-9DBE-2E82C0EF114B",
-			Title:		"Book title2",
-			Genres:		[]string{"adventure"},
-			Pages:		234,
-			Price:		25.43,
-		},
-		Book{
-			ID:		"FFAD23EB-8FF4-4E09-82D2-AA33EBE3997F",
-			Title:		"Book title3",
-			Genres:		[]string{"historical"},
-			Pages:		321,
-			Price:		999.00,
-		},
-	}
-	return books
-}
-
-func GetBooks() Books {
+func GetBooks() (Books, error) {
 	var books Books
 	filepath, _ := filepath.Abs("storage/storage.json")
 	file, err := ioutil.ReadFile(filepath)
     	if err != nil {
-        	fmt.Printf("File error: %v\n", err)
-        	os.Exit(1)
+		fmt.Printf("File error: %v\n", err)
+		return nil, err
     	}
-	json.Unmarshal(file, &books)
-	return books
+	err = json.Unmarshal(file, &books)
+	if err != nil {
+		fmt.Printf("File error: %v\n", err)
+		return nil, err
+	}
+
+	return books, nil
+}
+
+func CreateBook(book Book) error {
+	filepath, _ := filepath.Abs("storage/storage.json")
+	books, err := GetBooks()
+	if err != nil {
+		return err
+	}
+	book.ID = uuid.NewV4().String()
+	books = append(books, book)
+	booksBytes, err := json.MarshalIndent(books, "", "    ")
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile(filepath, booksBytes, 0644)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func GetBook(id string) (Book, error) {
+	var b Book
+	books, err := GetBooks()
+	if err != nil {
+		return b, err
+	}
+	for _, book := range books {
+		if id == book.ID {
+			return book, nil
+		}
+	}
+	err  = errors.New("can't find the book with given ID")
+	return b, err
+}
+
+func RemoveBook(id string) error {
+	var isPresent bool
+	var wantedIndex int
+	filepath, _ := filepath.Abs("storage/storage.json")
+	books, err := GetBooks()
+	if err != nil {
+		return err
+	}
+	for _, book := range books {
+		if id == book.ID {
+			isPresent = true
+		}
+	}
+	if !isPresent {
+		err = errors.New("can't find the book with given ID")
+		return err
+	}
+	for index, book := range books {
+		if id == book.ID {
+			wantedIndex = index
+		}
+	}
+	books = append(books[:wantedIndex], books[wantedIndex+1:]...)
+	booksBytes, err := json.MarshalIndent(books, "", "    ")
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile(filepath, booksBytes, 0644)
+	if err != nil {
+		return err
+	}
+	return nil
 }
