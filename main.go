@@ -2,7 +2,7 @@ package main
 
 import (
 	"net/http"
-	"../library/api/web"
+	"github.com/ssOlexBaiko/library/api/web"
 )
 
 func main() {
