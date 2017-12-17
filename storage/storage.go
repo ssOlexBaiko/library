@@ -1,7 +1,6 @@
 package storage
 
 import (
-	"fmt"
 	"io/ioutil"
 	"path/filepath"
 	"github.com/twinj/uuid"
@@ -19,17 +18,32 @@ type Book struct {
 
 type Books []Book
 
+func (b *Book) updateBook(changedBook Book) {
+	b.Title = changedBook.Title
+	b.Genres = changedBook.Genres
+	b.Pages = changedBook.Pages
+	b.Price = changedBook.Price
+}
+
+func wantedIndex(id string, books Books) (int, error) {
+	for index, book := range books {
+		if id == book.ID {
+			return index, nil
+		}
+	}
+	err := errors.New("can't find the book with given ID")
+	return 0, err
+}
+
 func GetBooks() (Books, error) {
 	var books Books
 	filepath, _ := filepath.Abs("storage/storage.json")
 	file, err := ioutil.ReadFile(filepath)
     	if err != nil {
-		fmt.Printf("File error: %v\n", err)
 		return nil, err
     	}
 	err = json.Unmarshal(file, &books)
 	if err != nil {
-		fmt.Printf("File error: %v\n", err)
 		return nil, err
 	}
 
@@ -71,28 +85,42 @@ func GetBook(id string) (Book, error) {
 }
 
 func RemoveBook(id string) error {
-	var isPresent bool
-	var wantedIndex int
 	filepath, _ := filepath.Abs("storage/storage.json")
 	books, err := GetBooks()
 	if err != nil {
 		return err
 	}
-	for _, book := range books {
-		if id == book.ID {
-			isPresent = true
-		}
-	}
-	if !isPresent {
-		err = errors.New("can't find the book with given ID")
+	index, err := wantedIndex(id, books)
+	if err != nil {
 		return err
 	}
-	for index, book := range books {
-		if id == book.ID {
-			wantedIndex = index
-		}
+	books = append(books[:index], books[index+1:]...)
+	booksBytes, err := json.MarshalIndent(books, "", "    ")
+	if err != nil {
+		return err
 	}
-	books = append(books[:wantedIndex], books[wantedIndex+1:]...)
+	err = ioutil.WriteFile(filepath, booksBytes, 0644)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func ChangeBook(id string, changedBook Book) error {
+	filepath, _ := filepath.Abs("storage/storage.json")
+	books, err := GetBooks()
+	if err != nil {
+		return err
+	}
+	index, err := wantedIndex(id, books)
+	if err != nil {
+		return err
+	}
+	book := &books[index]
+	book.Price = changedBook.Price
+	book.Pages = changedBook.Pages
+	book.Title = changedBook.Title
+	book.Genres = changedBook.Genres
 	booksBytes, err := json.MarshalIndent(books, "", "    ")
 	if err != nil {
 		return err

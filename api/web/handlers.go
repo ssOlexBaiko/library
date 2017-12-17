@@ -78,3 +78,23 @@ func removeBookHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusNoContent)
 }
+
+func changeBookHandler(w http.ResponseWriter, r *http.Request) {
+	var book storage.Book
+	err := json.NewDecoder(r.Body).Decode(&book)
+	if err != nil {
+		log.Println(err)
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	vars := mux.Vars(r)
+	id := vars["id"]
+	err = storage.ChangeBook(id, book)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		log.Println(err)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}

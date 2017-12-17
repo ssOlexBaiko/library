@@ -59,4 +59,10 @@ var routes = Routes{
 		"/books/{id}",
 		removeBookHandler,
 	},
+	Route{
+		"ChangeBook",
+		"PUT",
+		"/books/{id}",
+		changeBookHandler,
+	},
 }
