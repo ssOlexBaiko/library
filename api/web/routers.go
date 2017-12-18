@@ -65,4 +65,10 @@ var routes = Routes{
 		"/books/{id}",
 		changeBookHandler,
 	},
+	Route{
+		"BookFilter",
+		"POST",
+		"/books/{id}",
+		bookFilterHandler,
+	},
 }
