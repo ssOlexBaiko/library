@@ -19,10 +19,7 @@ func writeData(books Books) error {
 		return err
 	}
 	err = ioutil.WriteFile(path, booksBytes, 0644)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func wantedIndex(id string, books Books) (int, error) {
@@ -35,6 +32,7 @@ func wantedIndex(id string, books Books) (int, error) {
 	return 0, err
 }
 
+//GetBooks returns all book objects
 func GetBooks() (Books, error) {
 	var books Books
 	path, err := filepath.Abs("storage/storage.json")
@@ -52,6 +50,7 @@ func GetBooks() (Books, error) {
 	return books, nil
 }
 
+//CreateBook adds book object into db
 func CreateBook(book Book) error {
 	err := errors.New("not all fields are populated")
 	switch {
@@ -78,6 +77,7 @@ func CreateBook(book Book) error {
 	}
 }
 
+//GetBook returns book object with specified id
 func GetBook(id string) (Book, error) {
 	var b Book
 	books, err := GetBooks()
@@ -93,6 +93,7 @@ func GetBook(id string) (Book, error) {
 	return b, err
 }
 
+//RemoveBook removes book object with specified id
 func RemoveBook(id string) error {
 	books, err := GetBooks()
 	if err != nil {
@@ -104,12 +105,10 @@ func RemoveBook(id string) error {
 	}
 	books = append(books[:index], books[index+1:]...)
 	err = writeData(books)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
+//ChangeBook updates book object with specified id
 func ChangeBook(id string, changedBook Book) error {
 	books, err := GetBooks()
 	if err != nil {
@@ -133,42 +132,35 @@ func ChangeBook(id string, changedBook Book) error {
 		book.Genres = changedBook.Genres
 	}
 	err = writeData(books)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
+//PriceFilter returns filtered book objects
 func PriceFilter(filter Filter) (Books, error) {
 	var wantedBooks Books
+	operator := string(filter.Price[0])
+	if operator != "<" && operator != ">" {
+		err := errors.New("unsupported operation")
+		return nil, err
+	}
 	books, err := GetBooks()
 	if err != nil {
 		return nil, err
 	}
-	switch {
-	case string(filter.Price[0]) == ">":
-		price, err := strconv.ParseFloat(filter.Price[1:], 64)
-		if err != nil {
-			return nil, err
-		}
-		for _, book := range books {
+	price, err := strconv.ParseFloat(filter.Price[1:], 64)
+	if err != nil {
+		return nil, err
+	}
+	for _, book := range books {
+		if operator == ">" {
 			if book.Price > price {
 				wantedBooks = append(wantedBooks, book)
 			}
-		}
-	case string(filter.Price[0]) == "<":
-		price, err := strconv.ParseFloat(filter.Price[1:], 64)
-		if err != nil {
-			return nil, err
-		}
-		for _, book := range books {
+		} else {
 			if book.Price < price {
 				wantedBooks = append(wantedBooks, book)
 			}
 		}
-	default:
-		err = errors.New("bad request")
-		return nil, err
 	}
 	return wantedBooks, nil
 }
