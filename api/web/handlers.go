@@ -10,11 +10,13 @@ import (
 )
 
 func indexHandler(w http.ResponseWriter, _ *http.Request) {
+	log.Println("Index - call")
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "Hello, this is the library resource")
 }
 
 func booksIndexHandler(w http.ResponseWriter, _ *http.Request) {
+	log.Println("BooksIndex - call")
 	books, err := storage.GetBooks()
 	if err != nil {
 		log.Println(err)
@@ -28,9 +30,11 @@ func booksIndexHandler(w http.ResponseWriter, _ *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusOK)
+
 }
 
 func bookCreateHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("BookCreate - call")
 	var book storage.Book
 	err := json.NewDecoder(r.Body).Decode(&book)
 	if err != nil {
@@ -51,6 +55,7 @@ func bookCreateHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getBookHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("GetBook - call")
 	vars := mux.Vars(r)
 	id := vars["id"]
 	book, err := storage.GetBook(id)
@@ -69,6 +74,7 @@ func getBookHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func removeBookHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("RemoveBook - call")
 	vars := mux.Vars(r)
 	id := vars["id"]
 	err := storage.RemoveBook(id)
@@ -81,6 +87,7 @@ func removeBookHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func changeBookHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("ChangeBook - call")
 	var book storage.Book
 	err := json.NewDecoder(r.Body).Decode(&book)
 	if err != nil {
@@ -101,6 +108,7 @@ func changeBookHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func bookFilterHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("BookFilter - call")
 	var filter storage.Filter
 	err := json.NewDecoder(r.Body).Decode(&filter)
 	if err != nil {
