@@ -98,3 +98,28 @@ func changeBookHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 }
+
+func bookFilterHandler(w http.ResponseWriter, r *http.Request) {
+	var filter storage.Filter
+	err := json.NewDecoder(r.Body).Decode(&filter)
+	if err != nil {
+		log.Println(err)
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	books, err := storage.PriceFilter(filter)
+	if err != nil {
+		log.Println(err)
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	err = json.NewEncoder(w).Encode(books)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
