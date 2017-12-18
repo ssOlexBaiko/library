@@ -43,6 +43,7 @@ func bookCreateHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusBadRequest)
+		log.Println(err)
 		return
 	}
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
