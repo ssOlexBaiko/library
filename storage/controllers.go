@@ -53,17 +53,29 @@ func GetBooks() (Books, error) {
 }
 
 func CreateBook(book Book) error {
-	books, err := GetBooks()
-	if err != nil {
+	err := errors.New("not all fields are populated")
+	switch {
+	case book.Genres == nil:
 		return err
-	}
-	book.ID = uuid.NewV4().String()
-	books = append(books, book)
-	err = writeData(books)
-	if err != nil {
+	case book.Pages == 0:
 		return err
+	case book.Price == 0:
+		return err
+	case book.Title == "":
+		return err
+	default:
+		books, err := GetBooks()
+		if err != nil {
+			return err
+		}
+		book.ID = uuid.NewV4().String()
+		books = append(books, book)
+		err = writeData(books)
+		if err != nil {
+			return err
+		}
+		return nil
 	}
-	return nil
 }
 
 func GetBook(id string) (Book, error) {
@@ -108,10 +120,18 @@ func ChangeBook(id string, changedBook Book) error {
 		return err
 	}
 	book := &books[index]
-	book.Price = changedBook.Price
-	book.Pages = changedBook.Pages
-	book.Title = changedBook.Title
-	book.Genres = changedBook.Genres
+	if changedBook.Price != 0 {
+		book.Price = changedBook.Price
+	}
+	if changedBook.Title != "" {
+		book.Title = changedBook.Title
+	}
+	if changedBook.Pages != 0 {
+		book.Pages = changedBook.Pages
+	}
+	if changedBook.Genres != nil {
+		book.Genres = changedBook.Genres
+	}
 	err = writeData(books)
 	if err != nil {
 		return err
