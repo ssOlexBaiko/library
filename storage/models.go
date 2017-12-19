@@ -15,5 +15,4 @@ type Books []Book
 //Filter describes filter indicator
 type Filter struct {
 	Price	string		`json:"price, omitempty"`
-
 }

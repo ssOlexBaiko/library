@@ -50,7 +50,7 @@ func GetBooks() (Books, error) {
 	return books, nil
 }
 
-//CreateBook adds book object into db
+// CreateBook adds book object into db
 func CreateBook(book Book) error {
 	err := errors.New("not all fields are populated")
 	switch {
@@ -77,7 +77,7 @@ func CreateBook(book Book) error {
 	}
 }
 
-//GetBook returns book object with specified id
+// GetBook returns book object with specified id
 func GetBook(id string) (Book, error) {
 	var b Book
 	books, err := GetBooks()
@@ -93,7 +93,7 @@ func GetBook(id string) (Book, error) {
 	return b, err
 }
 
-//RemoveBook removes book object with specified id
+// RemoveBook removes book object with specified id
 func RemoveBook(id string) error {
 	books, err := GetBooks()
 	if err != nil {
@@ -108,7 +108,7 @@ func RemoveBook(id string) error {
 	return err
 }
 
-//ChangeBook updates book object with specified id
+// ChangeBook updates book object with specified id
 func ChangeBook(id string, changedBook Book) error {
 	books, err := GetBooks()
 	if err != nil {
@@ -135,7 +135,7 @@ func ChangeBook(id string, changedBook Book) error {
 	return err
 }
 
-//PriceFilter returns filtered book objects
+// PriceFilter returns filtered book objects
 func PriceFilter(filter Filter) (Books, error) {
 	var wantedBooks Books
 	operator := string(filter.Price[0])
