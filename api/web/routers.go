@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+// Route describes route object
 type Route struct {
 	Name        string
 	Method      string
@@ -12,10 +13,11 @@ type Route struct {
 	HandlerFunc http.HandlerFunc
 }
 
+//Routes contains route objects
 type Routes []Route
 
+// NewRouter initialize app routers
 func NewRouter() *mux.Router {
-
 	router := mux.NewRouter().StrictSlash(true)
 	for _, route := range routes {
 		router.
@@ -33,42 +35,42 @@ var routes = Routes{
 		"Index",
 		"GET",
 		"/",
-		indexHandler,
+		IndexHandler,
 	},
 	Route{
 		"BooksIndex",
 		"GET",
 		"/books",
-		booksIndexHandler,
+		BooksIndexHandler,
 	},
 	Route{
 		"BookCreate",
 		"POST",
 		"/books",
-		bookCreateHandler,
+		BookCreateHandler,
 	},
 	Route{
 		"GetBook",
 		"GET",
 		"/books/{id}",
-		getBookHandler,
+		GetBookHandler,
 	},
 	Route{
 		"RemoveBook",
 		"Delete",
 		"/books/{id}",
-		removeBookHandler,
+		RemoveBookHandler,
 	},
 	Route{
 		"ChangeBook",
 		"PUT",
 		"/books/{id}",
-		changeBookHandler,
+		ChangeBookHandler,
 	},
 	Route{
 		"BookFilter",
 		"POST",
-		"/books/{id}",
-		bookFilterHandler,
+		"/books/filter",
+		BookFilterHandler,
 	},
 }

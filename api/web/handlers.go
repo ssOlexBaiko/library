@@ -8,13 +8,22 @@ import (
 	"log"
 	"github.com/gorilla/mux"
 )
-
-func indexHandler(w http.ResponseWriter, _ *http.Request) {
+// IndexHandler handles requests with GET method
+func IndexHandler(w http.ResponseWriter, _ *http.Request) {
+	log.Println("Index - call")
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "Hello, this is the library resource")
+	_, err := fmt.Fprintf(w, "Hello, this is the library resource")
+	if err != nil {
+		w.WriteHeader(http.StatusServiceUnavailable)
+		log.Println(err)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
 }
 
-func booksIndexHandler(w http.ResponseWriter, _ *http.Request) {
+// BooksIndexHandler handles requests with GET method
+func BooksIndexHandler(w http.ResponseWriter, _ *http.Request) {
+	log.Println("BooksIndex - call")
 	books, err := storage.GetBooks()
 	if err != nil {
 		log.Println(err)
@@ -28,9 +37,12 @@ func booksIndexHandler(w http.ResponseWriter, _ *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusOK)
+
 }
 
-func bookCreateHandler(w http.ResponseWriter, r *http.Request) {
+// BookCreateHandler handles requests with POST method
+func BookCreateHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("BookCreate - call")
 	var book storage.Book
 	err := json.NewDecoder(r.Body).Decode(&book)
 	if err != nil {
@@ -50,9 +62,15 @@ func bookCreateHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func getBookHandler(w http.ResponseWriter, r *http.Request) {
+// GetBookHandler handles requests with GET method
+func GetBookHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("GetBook - call")
 	vars := mux.Vars(r)
-	id := vars["id"]
+	id, ok := vars["id"]
+	if !ok {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 	book, err := storage.GetBook(id)
 	if err != nil {
 		log.Println(err)
@@ -68,9 +86,15 @@ func getBookHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func removeBookHandler(w http.ResponseWriter, r *http.Request) {
+// RemoveBookHandler handles requests with DELETE method
+func RemoveBookHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("RemoveBook - call")
 	vars := mux.Vars(r)
-	id := vars["id"]
+	id, ok := vars["id"]
+	if !ok {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 	err := storage.RemoveBook(id)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
@@ -80,7 +104,9 @@ func removeBookHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
-func changeBookHandler(w http.ResponseWriter, r *http.Request) {
+// ChangeBookHandler handles requests with PUT method
+func ChangeBookHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("ChangeBook - call")
 	var book storage.Book
 	err := json.NewDecoder(r.Body).Decode(&book)
 	if err != nil {
@@ -90,7 +116,11 @@ func changeBookHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	vars := mux.Vars(r)
-	id := vars["id"]
+	id, ok := vars["id"]
+	if !ok {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 	err = storage.ChangeBook(id, book)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
@@ -100,7 +130,9 @@ func changeBookHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func bookFilterHandler(w http.ResponseWriter, r *http.Request) {
+// BookFilterHandler handles requests with POST method
+func BookFilterHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("BookFilter - call")
 	var filter storage.Filter
 	err := json.NewDecoder(r.Body).Decode(&filter)
 	if err != nil {
