@@ -66,7 +66,11 @@ func BookCreateHandler(w http.ResponseWriter, r *http.Request) {
 func GetBookHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("GetBook - call")
 	vars := mux.Vars(r)
-	id := vars["id"]
+	id, ok := vars["id"]
+	if !ok {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 	book, err := storage.GetBook(id)
 	if err != nil {
 		log.Println(err)
@@ -86,7 +90,11 @@ func GetBookHandler(w http.ResponseWriter, r *http.Request) {
 func RemoveBookHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("RemoveBook - call")
 	vars := mux.Vars(r)
-	id := vars["id"]
+	id, ok := vars["id"]
+	if !ok {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 	err := storage.RemoveBook(id)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
@@ -108,7 +116,11 @@ func ChangeBookHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	vars := mux.Vars(r)
-	id := vars["id"]
+	id, ok := vars["id"]
+	if !ok {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 	err = storage.ChangeBook(id, book)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
