@@ -4,23 +4,194 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"github.com/ssOlexBaiko/library/storage"
+	"encoding/json"
+	"flag"
+	"errors"
+	"bytes"
 )
 
+func getTestBooks() (storage.Books, error) {
+	req, err := http.NewRequest("GET", "/books", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	rr := httptest.NewRecorder()
+
+	handler := NewRouter()
+	handler.ServeHTTP(rr, req)
+	if rr.Code != http.StatusOK {
+		return nil, errors.New("BooksIndex handler returned wrong status code")
+	}
+
+	var books storage.Books
+	err = json.NewDecoder(rr.Body).Decode(&books)
+	if err != nil {
+		return nil, errors.New("BooksIndex handler returned wrong data")
+	}
+	return books, nil
+}
+
 func TestIndexHandler(t *testing.T) {
+	// hook for setting libPath as /api/web/test_storage.json
+	flag.Parse()
+
 	req, err := http.NewRequest("GET", "/", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
+
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(IndexHandler)
+
+	handler := NewRouter()
 	handler.ServeHTTP(rr, req)
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusOK)
 	}
+
 	expected := "Hello, this is the library resource"
 	if rr.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			rr.Body.String(), expected)
+	}
+}
+
+func TestBooksIndexHandler(t *testing.T) {
+	_, err := getTestBooks()
+	if err != nil {
+		t.Errorf("test failed: %v", err)
+	}
+}
+
+func TestGetBookHandler(t *testing.T) {
+	books, err := getTestBooks()
+	if err != nil {
+		t.Errorf("test failed: %v", err)
+	}
+
+	url := "/books/" + books[0].ID
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+
+	handler := NewRouter()
+	handler.ServeHTTP(rr, req)
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusOK)
+	}
+
+	var book storage.Book
+	err = json.NewDecoder(rr.Body).Decode(&book)
+	if err != nil {
+		t.Errorf("handler returned wrong data: %v", err)
+	}
+}
+
+func TestBookCreateHandler(t *testing.T) {
+	testBook := storage.Book{
+		Title:	"TestBook",
+		Genres:	[]string{"test1", "test2"},
+		Pages:	777,
+		Price:	777,
+	}
+
+	book, err := json.Marshal(testBook)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	body := bytes.NewReader(book)
+	req, err := http.NewRequest("POST", "/books", body)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+
+	handler := NewRouter()
+	handler.ServeHTTP(rr, req)
+	if status := rr.Code; status != http.StatusCreated {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusCreated)
+	}
+}
+
+func TestRemoveBookHandler(t *testing.T) {
+	books, err := getTestBooks()
+	if err != nil {
+		t.Errorf("test failed: %v", err)
+	}
+
+	url := "/books/" + books[len(books) - 1].ID
+	req, err := http.NewRequest("DELETE", url, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+
+	handler := NewRouter()
+	handler.ServeHTTP(rr, req)
+	if status := rr.Code; status != http.StatusNoContent {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusNoContent)
+	}
+}
+
+func TestChangeBookHandler(t *testing.T) {
+	books, err := getTestBooks()
+	if err != nil {
+		t.Errorf("test failed: %v", err)
+	}
+
+	testBook := storage.Book{Title:"test"}
+	book, err := json.Marshal(testBook)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	body := bytes.NewReader(book)
+	url := "/books/" + books[0].ID
+	req, err := http.NewRequest("PUT", url, body)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+
+	handler := NewRouter()
+	handler.ServeHTTP(rr, req)
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusOK)
+	}
+}
+
+func TestBookFilterHandler(t *testing.T) {
+	price := storage.BookFilter{Price:"<77"}
+	filter, err := json.Marshal(price)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	body := bytes.NewReader(filter)
+	req, err := http.NewRequest("POST", "/books/filter", body)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+
+	handler := NewRouter()
+	handler.ServeHTTP(rr, req)
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v",
+			status, http.StatusOK)
 	}
 }

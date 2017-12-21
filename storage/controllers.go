@@ -1,25 +1,35 @@
 package storage
 
 import (
-	"io/ioutil"
-	"path/filepath"
-	"github.com/twinj/uuid"
 	"encoding/json"
 	"errors"
+	"io/ioutil"
+	"path/filepath"
 	"strconv"
+
+	"flag"
+
+	"github.com/twinj/uuid"
+)
+
+var (
+	libPath = flag.String("libPath", "storage/storage.json", "set path the storage file")
+
+	// ErrNotFound describe the state when the object is not found in the storage
+	ErrNotFound = errors.New("can't find the book with given ID")
 )
 
 func writeData(books Books) error {
-	path, err := filepath.Abs("storage/storage.json")
+	path, err := filepath.Abs(*libPath)
 	if err != nil {
 		return err
 	}
+
 	booksBytes, err := json.MarshalIndent(books, "", "    ")
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(path, booksBytes, 0644)
-	return err
+	return ioutil.WriteFile(path, booksBytes, 0644)
 }
 
 func wantedIndex(id string, books Books) (int, error) {
@@ -28,26 +38,24 @@ func wantedIndex(id string, books Books) (int, error) {
 			return index, nil
 		}
 	}
-	err := errors.New("can't find the book with given ID")
-	return 0, err
+	return 0, ErrNotFound
 }
 
 //GetBooks returns all book objects
 func GetBooks() (Books, error) {
 	var books Books
-	path, err := filepath.Abs("storage/storage.json")
+
+	path, err := filepath.Abs(*libPath)
 	if err != nil {
 		return nil, err
 	}
+
 	file, err := ioutil.ReadFile(path)
-    	if err != nil {
-		return nil, err
-    	}
-	err = json.Unmarshal(file, &books)
 	if err != nil {
 		return nil, err
 	}
-	return books, nil
+
+	return books, json.Unmarshal(file, &books)
 }
 
 // CreateBook adds book object into db
@@ -62,19 +70,17 @@ func CreateBook(book Book) error {
 		return err
 	case book.Title == "":
 		return err
-	default:
-		books, err := GetBooks()
-		if err != nil {
-			return err
-		}
-		book.ID = uuid.NewV4().String()
-		books = append(books, book)
-		err = writeData(books)
-		if err != nil {
-			return err
-		}
-		return nil
 	}
+
+	books, err := GetBooks()
+	if err != nil {
+		return err
+	}
+
+	book.ID = uuid.NewV4().String()
+	books = append(books, book)
+	return writeData(books)
+
 }
 
 // GetBook returns book object with specified id
@@ -84,13 +90,13 @@ func GetBook(id string) (Book, error) {
 	if err != nil {
 		return b, err
 	}
+
 	for _, book := range books {
 		if id == book.ID {
 			return book, nil
 		}
 	}
-	err  = errors.New("can't find the book with given ID")
-	return b, err
+	return b, ErrNotFound
 }
 
 // RemoveBook removes book object with specified id
@@ -99,13 +105,13 @@ func RemoveBook(id string) error {
 	if err != nil {
 		return err
 	}
+
 	index, err := wantedIndex(id, books)
 	if err != nil {
 		return err
 	}
 	books = append(books[:index], books[index+1:]...)
-	err = writeData(books)
-	return err
+	return writeData(books)
 }
 
 // ChangeBook updates book object with specified id
@@ -114,43 +120,44 @@ func ChangeBook(id string, changedBook Book) error {
 	if err != nil {
 		return err
 	}
+
 	index, err := wantedIndex(id, books)
 	if err != nil {
 		return err
 	}
+
 	book := &books[index]
-	if changedBook.Price != 0 {
-		book.Price = changedBook.Price
-	}
-	if changedBook.Title != "" {
-		book.Title = changedBook.Title
-	}
-	if changedBook.Pages != 0 {
-		book.Pages = changedBook.Pages
-	}
-	if changedBook.Genres != nil {
-		book.Genres = changedBook.Genres
-	}
+	book.Price = changedBook.Price
+	book.Title = changedBook.Title
+	book.Pages = changedBook.Pages
+	book.Genres = changedBook.Genres
 	err = writeData(books)
 	return err
 }
 
 // PriceFilter returns filtered book objects
-func PriceFilter(filter Filter) (Books, error) {
+func PriceFilter(filter BookFilter) (Books, error) {
 	var wantedBooks Books
+
+	if len(filter.Price) <= 1 {
+		return nil, errors.New("Not valid data")
+	}
 	operator := string(filter.Price[0])
 	if operator != "<" && operator != ">" {
 		err := errors.New("unsupported operation")
 		return nil, err
 	}
+
 	books, err := GetBooks()
 	if err != nil {
 		return nil, err
 	}
+
 	price, err := strconv.ParseFloat(filter.Price[1:], 64)
 	if err != nil {
 		return nil, err
 	}
+
 	for _, book := range books {
 		if operator == ">" {
 			if book.Price > price {
