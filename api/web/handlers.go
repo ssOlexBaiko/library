@@ -163,7 +163,7 @@ func ChangeBookHandler(w http.ResponseWriter, r *http.Request) {
 func BookFilterHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("BookFilter - call")
 
-	var filter storage.Filter
+	var filter storage.BookFilter
 	err := json.NewDecoder(r.Body).Decode(&filter)
 	if err != nil {
 		log.Println(err)

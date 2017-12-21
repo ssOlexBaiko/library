@@ -13,8 +13,9 @@ import (
 )
 
 var (
-	libPath = flag.String("libPath", "storage/storage.json", "Foo")
+	libPath = flag.String("libPath", "storage/storage.json", "set path the storage file")
 
+	// ErrNotFound describe the state when the object is not found in the storage
 	ErrNotFound = errors.New("can't find the book with given ID")
 )
 
@@ -125,25 +126,17 @@ func ChangeBook(id string, changedBook Book) error {
 		return err
 	}
 
-	book := books[index]
-	if changedBook.Price != 0 {
-		book.Price = changedBook.Price
-	}
-	if changedBook.Title != "" {
-		book.Title = changedBook.Title
-	}
-	if changedBook.Pages != 0 {
-		book.Pages = changedBook.Pages
-	}
-	if changedBook.Genres != nil {
-		book.Genres = changedBook.Genres
-	}
+	book := &books[index]
+	book.Price = changedBook.Price
+	book.Title = changedBook.Title
+	book.Pages = changedBook.Pages
+	book.Genres = changedBook.Genres
 	err = writeData(books)
 	return err
 }
 
 // PriceFilter returns filtered book objects
-func PriceFilter(filter Filter) (Books, error) {
+func PriceFilter(filter BookFilter) (Books, error) {
 	var wantedBooks Books
 
 	if len(filter.Price) <= 1 {
