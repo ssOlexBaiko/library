@@ -13,6 +13,6 @@ type Book struct {
 type Books []Book
 
 //Filter describes filter indicator
-type Filter struct {
+type BookFilter struct {
 	Price string `json:"price, omitempty"`
 }
