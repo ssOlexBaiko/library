@@ -1,8 +1,9 @@
 package web
 
 import (
-	"github.com/gorilla/mux"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 // Route describes route object
@@ -13,11 +14,21 @@ type Route struct {
 	HandlerFunc http.HandlerFunc
 }
 
-//Routes contains route objects
+// Routes contains route objects
 type Routes []Route
 
 // NewRouter initialize app routers
-func NewRouter() *mux.Router {
+func NewRouter(handler *handler) *mux.Router {
+	var routes = Routes{
+		{"Index", "GET", "/", handler.IndexHandler},
+		{"BooksIndex", "GET", "/books", handler.BooksIndexHandler},
+		{"BookCreate", "POST", "/books", handler.BookCreateHandler},
+		{"GetBook", "GET", "/books/{id}", handler.GetBookHandler},
+		{"RemoveBook", "Delete", "/books/{id}", handler.RemoveBookHandler},
+		{"ChangeBook", "PUT", "/books/{id}", handler.ChangeBookHandler},
+		{"BookFilter", "POST", "/books/filter", handler.BookFilterHandler},
+	}
+
 	router := mux.NewRouter().StrictSlash(true)
 	for _, route := range routes {
 		router.
@@ -28,49 +39,4 @@ func NewRouter() *mux.Router {
 	}
 
 	return router
-}
-
-var routes = Routes{
-	Route{
-		"Index",
-		"GET",
-		"/",
-		IndexHandler,
-	},
-	Route{
-		"BooksIndex",
-		"GET",
-		"/books",
-		BooksIndexHandler,
-	},
-	Route{
-		"BookCreate",
-		"POST",
-		"/books",
-		BookCreateHandler,
-	},
-	Route{
-		"GetBook",
-		"GET",
-		"/books/{id}",
-		GetBookHandler,
-	},
-	Route{
-		"RemoveBook",
-		"Delete",
-		"/books/{id}",
-		RemoveBookHandler,
-	},
-	Route{
-		"ChangeBook",
-		"PUT",
-		"/books/{id}",
-		ChangeBookHandler,
-	},
-	Route{
-		"BookFilter",
-		"POST",
-		"/books/filter",
-		BookFilterHandler,
-	},
 }

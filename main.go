@@ -14,9 +14,12 @@ var libPath = flag.String("libPath", "storage/storage.json", "set path the stora
 
 func main() {
 	flag.Parse()
-	library := storage.Lib{*libPath}
-	_ = library // library has to be passed into web.NewRouter() as param
-	router := web.NewRouter()
+
+	router := web.NewRouter(
+		web.NewHandler(
+			storage.NewLibrary(*libPath),
+		),
+	)
 
 	log.Fatal(http.ListenAndServe("0.0.0.0:8000", router))
 }

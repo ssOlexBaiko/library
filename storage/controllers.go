@@ -15,12 +15,22 @@ var (
 	ErrNotFound = errors.New("can't find the book with given ID")
 )
 
-type Lib struct {
+type library struct {
 	storage string
-	//storage io.ReadWriteCloser
+	//storage io.ReadWriteCloser // Here you can put opened os.File object. After that you will be able to implement concurrent safe operations with file storage
 }
 
-func (l *Lib) writeData(books Books) error {
+// NewLibrary constructor for library struct.
+// Constructors are often used for initialize some data structures (map, slice, chan...)
+// or when you need some data preparation
+// or when you want to start some watchers (goroutines). In this case you also have to think about Close() method.
+func NewLibrary(pathToStorage string) *library {
+	return &library{
+		storage: pathToStorage,
+	}
+}
+
+func (l *library) writeData(books Books) error {
 	path, err := filepath.Abs(l.storage)
 	if err != nil {
 		return err
@@ -33,7 +43,7 @@ func (l *Lib) writeData(books Books) error {
 	return ioutil.WriteFile(path, booksBytes, 0644)
 }
 
-func (l *Lib) wantedIndex(id string, books Books) (int, error) {
+func (l *library) wantedIndex(id string, books Books) (int, error) {
 	for index, book := range books {
 		if id == book.ID {
 			return index, nil
@@ -43,7 +53,7 @@ func (l *Lib) wantedIndex(id string, books Books) (int, error) {
 }
 
 //GetBooks returns all book objects
-func (l *Lib) GetBooks() (Books, error) {
+func (l *library) GetBooks() (Books, error) {
 	var books Books
 
 	path, err := filepath.Abs(l.storage)
@@ -60,7 +70,7 @@ func (l *Lib) GetBooks() (Books, error) {
 }
 
 // CreateBook adds book object into db
-func (l *Lib) CreateBook(book Book) error {
+func (l *library) CreateBook(book Book) error {
 	err := errors.New("not all fields are populated")
 	switch {
 	case book.Genres == nil:
@@ -85,7 +95,7 @@ func (l *Lib) CreateBook(book Book) error {
 }
 
 // GetBook returns book object with specified id
-func (l *Lib) GetBook(id string) (Book, error) {
+func (l *library) GetBook(id string) (Book, error) {
 	var b Book
 	books, err := l.GetBooks()
 	if err != nil {
@@ -101,7 +111,7 @@ func (l *Lib) GetBook(id string) (Book, error) {
 }
 
 // RemoveBook removes book object with specified id
-func (l *Lib) RemoveBook(id string) error {
+func (l *library) RemoveBook(id string) error {
 	books, err := l.GetBooks()
 	if err != nil {
 		return err
@@ -116,7 +126,7 @@ func (l *Lib) RemoveBook(id string) error {
 }
 
 // ChangeBook updates book object with specified id
-func (l *Lib) ChangeBook(id string, changedBook Book) error {
+func (l *library) ChangeBook(id string, changedBook Book) error {
 	books, err := l.GetBooks()
 	if err != nil {
 		return err
@@ -137,7 +147,7 @@ func (l *Lib) ChangeBook(id string, changedBook Book) error {
 }
 
 // PriceFilter returns filtered book objects
-func (l *Lib) PriceFilter(filter BookFilter) (Books, error) {
+func (l *library) PriceFilter(filter BookFilter) (Books, error) {
 	var wantedBooks Books
 
 	if len(filter.Price) <= 1 {

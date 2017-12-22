@@ -11,11 +11,30 @@ import (
 	"github.com/twinj/uuid"
 )
 
+type handler struct {
+	storage Storage
+}
+
+type Storage interface {
+	GetBooks() (storage.Books, error)
+	CreateBook(book storage.Book) error
+	GetBook(id string) (storage.Book, error)
+	RemoveBook(id string) error
+	ChangeBook(id string, changedBook storage.Book) error
+	PriceFilter(filter storage.BookFilter) (storage.Books, error)
+}
+
+func NewHandler(storage Storage) *handler {
+	return &handler{
+		storage: storage,
+	}
+}
+
 // IndexHandler handles requests with GET method
-func IndexHandler(w http.ResponseWriter, _ *http.Request) {
+func (h *handler) IndexHandler(w http.ResponseWriter, _ *http.Request) {
 	log.Println("Index - call")
 
-	_, err := fmt.Fprintf(w, "Hello, this is the library resource")
+	_, err := fmt.Fprint(w, "Hello, this is the library resource")
 	if err != nil {
 		w.WriteHeader(http.StatusServiceUnavailable)
 		log.Println(err)
@@ -24,9 +43,9 @@ func IndexHandler(w http.ResponseWriter, _ *http.Request) {
 }
 
 // BooksIndexHandler handles requests with GET method
-func BooksIndexHandler(w http.ResponseWriter, _ *http.Request) {
+func (h *handler) BooksIndexHandler(w http.ResponseWriter, _ *http.Request) {
 	log.Println("BooksIndex - call")
-	books, err := storage.GetBooks()
+	books, err := h.storage.GetBooks()
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusNotFound)
@@ -42,7 +61,7 @@ func BooksIndexHandler(w http.ResponseWriter, _ *http.Request) {
 }
 
 // BookCreateHandler handles requests with POST method
-func BookCreateHandler(w http.ResponseWriter, r *http.Request) {
+func (h *handler) BookCreateHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("BookCreate - call")
 
 	var book storage.Book
@@ -54,7 +73,7 @@ func BookCreateHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = storage.CreateBook(book)
+	err = h.storage.CreateBook(book)
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -67,7 +86,7 @@ func BookCreateHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // GetBookHandler handles requests with GET method
-func GetBookHandler(w http.ResponseWriter, r *http.Request) {
+func (h *handler) GetBookHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("GetBook - call")
 
 	vars := mux.Vars(r)
@@ -78,7 +97,7 @@ func GetBookHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	book, err := storage.GetBook(id)
+	book, err := h.storage.GetBook(id)
 	if err != nil {
 		if err == storage.ErrNotFound {
 			w.WriteHeader(http.StatusNotFound)
@@ -98,7 +117,7 @@ func GetBookHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // RemoveBookHandler handles requests with DELETE method
-func RemoveBookHandler(w http.ResponseWriter, r *http.Request) {
+func (h *handler) RemoveBookHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("RemoveBook - call")
 
 	vars := mux.Vars(r)
@@ -109,7 +128,7 @@ func RemoveBookHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = storage.RemoveBook(id)
+	err = h.storage.RemoveBook(id)
 	if err != nil {
 		if err == storage.ErrNotFound {
 			w.WriteHeader(http.StatusNotFound)
@@ -123,7 +142,7 @@ func RemoveBookHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // ChangeBookHandler handles requests with PUT method
-func ChangeBookHandler(w http.ResponseWriter, r *http.Request) {
+func (h *handler) ChangeBookHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("ChangeBook - call")
 
 	vars := mux.Vars(r)
@@ -133,7 +152,7 @@ func ChangeBookHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	book, err := storage.GetBook(id)
+	book, err := h.storage.GetBook(id)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
@@ -147,7 +166,7 @@ func ChangeBookHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = storage.ChangeBook(id, book)
+	err = h.storage.ChangeBook(id, book)
 	if err != nil {
 		if err == storage.ErrNotFound {
 			w.WriteHeader(http.StatusNotFound)
@@ -160,7 +179,7 @@ func ChangeBookHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // BookFilterHandler handles requests with POST method
-func BookFilterHandler(w http.ResponseWriter, r *http.Request) {
+func (h *handler) BookFilterHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("BookFilter - call")
 
 	var filter storage.BookFilter
@@ -172,7 +191,7 @@ func BookFilterHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	books, err := storage.PriceFilter(filter)
+	books, err := h.storage.PriceFilter(filter)
 	if err != nil {
 		log.Println(err)
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
