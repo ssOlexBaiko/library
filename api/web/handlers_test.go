@@ -13,8 +13,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// add flag fro setting path to the storage
+var testLibPath = flag.String("libPath", "test_data/test_storage.json", "set path the storage file")
+
 func getTestBooks(t *testing.T) (storage.Books, error) {
-	t.Helper()
+	//t.Helper() //is available in go1.9 release
 	req, err := http.NewRequest("GET", "/books", nil)
 	if err != nil {
 		return nil, err
@@ -22,7 +25,9 @@ func getTestBooks(t *testing.T) (storage.Books, error) {
 
 	rr := httptest.NewRecorder()
 
-	handler := NewRouter()
+	handler := NewRouter(NewHandler(
+		storage.NewLibrary(*testLibPath)),
+	)
 	handler.ServeHTTP(rr, req)
 	if rr.Code != http.StatusOK {
 		return nil, errors.New("BooksIndex handler returned wrong status code")
@@ -37,7 +42,7 @@ func getTestBooks(t *testing.T) (storage.Books, error) {
 }
 
 func TestIndexHandler(t *testing.T) {
-	// hook for setting libPath as /api/web/test_storage.json
+	// hook for setting libPath as /api/web/test/test_storage.json
 	flag.Parse()
 
 	req, err := http.NewRequest("GET", "/", nil)
@@ -47,7 +52,9 @@ func TestIndexHandler(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 
-	handler := NewRouter()
+	handler := NewRouter(NewHandler(
+		storage.NewLibrary(*testLibPath)),
+	)
 	handler.ServeHTTP(rr, req)
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v",
@@ -80,7 +87,9 @@ func TestGetBookHandler(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 
-	handler := NewRouter()
+	handler := NewRouter(NewHandler(
+		storage.NewLibrary(*testLibPath)),
+	)
 	handler.ServeHTTP(rr, req)
 
 	test.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
@@ -111,7 +120,9 @@ func TestBookCreateHandler(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 
-	handler := NewRouter()
+	handler := NewRouter(NewHandler(
+		storage.NewLibrary(*testLibPath)),
+	)
 	handler.ServeHTTP(rr, req)
 	if status := rr.Code; status != http.StatusCreated {
 		t.Errorf("handler returned wrong status code: got %v want %v",
@@ -119,7 +130,16 @@ func TestBookCreateHandler(t *testing.T) {
 	}
 
 	// Check data!
-	//books, err := getTestBooks(t)
+	books, err := getTestBooks(t)
+	addedBook := false
+	for _, b := range books {
+		if b.Title == testBook.Title {
+			addedBook = true
+		}
+	}
+	if !addedBook {
+		t.Errorf("handler didn't add the book")
+	}
 }
 
 func TestRemoveBookHandler(t *testing.T) {
@@ -136,7 +156,10 @@ func TestRemoveBookHandler(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 
-	handler := NewRouter()
+	handler := NewRouter(
+		NewHandler(
+			storage.NewLibrary(*testLibPath)),
+	)
 	handler.ServeHTTP(rr, req)
 	if status := rr.Code; status != http.StatusNoContent {
 		t.Errorf("handler returned wrong status code: got %v want %v",
@@ -165,7 +188,9 @@ func TestChangeBookHandler(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 
-	handler := NewRouter()
+	handler := NewRouter(NewHandler(
+		storage.NewLibrary(*testLibPath)),
+	)
 	handler.ServeHTTP(rr, req)
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v",
@@ -188,7 +213,10 @@ func TestBookFilterHandler(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 
-	handler := NewRouter()
+	handler := NewRouter(
+		NewHandler(
+			storage.NewLibrary(*testLibPath)),
+	)
 	handler.ServeHTTP(rr, req)
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v",
@@ -196,7 +224,7 @@ func TestBookFilterHandler(t *testing.T) {
 	}
 }
 
-//
+// TODO:
 //func TestBookFilterHandler(t *testing.T) {
 //	type args struct {
 //		w http.ResponseWriter
