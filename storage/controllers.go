@@ -7,20 +7,31 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"flag"
-
 	"github.com/twinj/uuid"
 )
 
 var (
-	libPath = flag.String("libPath", "storage/storage.json", "set path the storage file")
-
 	// ErrNotFound describe the state when the object is not found in the storage
 	ErrNotFound = errors.New("can't find the book with given ID")
 )
 
-func writeData(books Books) error {
-	path, err := filepath.Abs(*libPath)
+type library struct {
+	storage string
+	//storage io.ReadWriteCloser // Here you can put opened os.File object. After that you will be able to implement concurrent safe operations with file storage
+}
+
+// NewLibrary constructor for library struct.
+// Constructors are often used for initialize some data structures (map, slice, chan...)
+// or when you need some data preparation
+// or when you want to start some watchers (goroutines). In this case you also have to think about Close() method.
+func NewLibrary(pathToStorage string) *library {
+	return &library{
+		storage: pathToStorage,
+	}
+}
+
+func (l *library) writeData(books Books) error {
+	path, err := filepath.Abs(l.storage)
 	if err != nil {
 		return err
 	}
@@ -32,7 +43,7 @@ func writeData(books Books) error {
 	return ioutil.WriteFile(path, booksBytes, 0644)
 }
 
-func wantedIndex(id string, books Books) (int, error) {
+func (l *library) wantedIndex(id string, books Books) (int, error) {
 	for index, book := range books {
 		if id == book.ID {
 			return index, nil
@@ -42,10 +53,10 @@ func wantedIndex(id string, books Books) (int, error) {
 }
 
 //GetBooks returns all book objects
-func GetBooks() (Books, error) {
+func (l *library) GetBooks() (Books, error) {
 	var books Books
 
-	path, err := filepath.Abs(*libPath)
+	path, err := filepath.Abs(l.storage)
 	if err != nil {
 		return nil, err
 	}
@@ -59,7 +70,7 @@ func GetBooks() (Books, error) {
 }
 
 // CreateBook adds book object into db
-func CreateBook(book Book) error {
+func (l *library) CreateBook(book Book) error {
 	err := errors.New("not all fields are populated")
 	switch {
 	case book.Genres == nil:
@@ -72,21 +83,21 @@ func CreateBook(book Book) error {
 		return err
 	}
 
-	books, err := GetBooks()
+	books, err := l.GetBooks()
 	if err != nil {
 		return err
 	}
 
 	book.ID = uuid.NewV4().String()
 	books = append(books, book)
-	return writeData(books)
+	return l.writeData(books)
 
 }
 
 // GetBook returns book object with specified id
-func GetBook(id string) (Book, error) {
+func (l *library) GetBook(id string) (Book, error) {
 	var b Book
-	books, err := GetBooks()
+	books, err := l.GetBooks()
 	if err != nil {
 		return b, err
 	}
@@ -100,28 +111,28 @@ func GetBook(id string) (Book, error) {
 }
 
 // RemoveBook removes book object with specified id
-func RemoveBook(id string) error {
-	books, err := GetBooks()
+func (l *library) RemoveBook(id string) error {
+	books, err := l.GetBooks()
 	if err != nil {
 		return err
 	}
 
-	index, err := wantedIndex(id, books)
+	index, err := l.wantedIndex(id, books)
 	if err != nil {
 		return err
 	}
 	books = append(books[:index], books[index+1:]...)
-	return writeData(books)
+	return l.writeData(books)
 }
 
 // ChangeBook updates book object with specified id
-func ChangeBook(id string, changedBook Book) error {
-	books, err := GetBooks()
+func (l *library) ChangeBook(id string, changedBook Book) error {
+	books, err := l.GetBooks()
 	if err != nil {
 		return err
 	}
 
-	index, err := wantedIndex(id, books)
+	index, err := l.wantedIndex(id, books)
 	if err != nil {
 		return err
 	}
@@ -131,12 +142,12 @@ func ChangeBook(id string, changedBook Book) error {
 	book.Title = changedBook.Title
 	book.Pages = changedBook.Pages
 	book.Genres = changedBook.Genres
-	err = writeData(books)
+	err = l.writeData(books)
 	return err
 }
 
 // PriceFilter returns filtered book objects
-func PriceFilter(filter BookFilter) (Books, error) {
+func (l *library) PriceFilter(filter BookFilter) (Books, error) {
 	var wantedBooks Books
 
 	if len(filter.Price) <= 1 {
@@ -148,7 +159,7 @@ func PriceFilter(filter BookFilter) (Books, error) {
 		return nil, err
 	}
 
-	books, err := GetBooks()
+	books, err := l.GetBooks()
 	if err != nil {
 		return nil, err
 	}
