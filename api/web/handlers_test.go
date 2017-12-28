@@ -13,8 +13,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// add flag fro setting path to the storage
-var testLibPath = flag.String("libPath", "test_data/test_storage.json", "set path the storage file")
+// add flag for setting path to the storage and for using sql db
+var (
+	testLibPath = flag.String("libPath", "test_data/test_storage.json", "set path the storage file")
+	sqlUse      = flag.Bool("sqlUse", false, "use sql db instead of json file")
+)
 
 func getTestBooks(t *testing.T) (storage.Books, error) {
 	//t.Helper() //is available in go1.9 release
@@ -26,7 +29,7 @@ func getTestBooks(t *testing.T) (storage.Books, error) {
 	rr := httptest.NewRecorder()
 
 	handler := NewRouter(NewHandler(
-		storage.NewLibrary(*testLibPath)),
+		storage.NewLibrary(*testLibPath, *sqlUse)),
 	)
 	handler.ServeHTTP(rr, req)
 	if rr.Code != http.StatusOK {
@@ -53,7 +56,7 @@ func TestIndexHandler(t *testing.T) {
 	rr := httptest.NewRecorder()
 
 	handler := NewRouter(NewHandler(
-		storage.NewLibrary(*testLibPath)),
+		storage.NewLibrary(*testLibPath, *sqlUse)),
 	)
 	handler.ServeHTTP(rr, req)
 	if status := rr.Code; status != http.StatusOK {
@@ -88,7 +91,7 @@ func TestGetBookHandler(t *testing.T) {
 	rr := httptest.NewRecorder()
 
 	handler := NewRouter(NewHandler(
-		storage.NewLibrary(*testLibPath)),
+		storage.NewLibrary(*testLibPath, *sqlUse)),
 	)
 	handler.ServeHTTP(rr, req)
 
@@ -121,7 +124,7 @@ func TestBookCreateHandler(t *testing.T) {
 	rr := httptest.NewRecorder()
 
 	handler := NewRouter(NewHandler(
-		storage.NewLibrary(*testLibPath)),
+		storage.NewLibrary(*testLibPath, *sqlUse)),
 	)
 	handler.ServeHTTP(rr, req)
 	if status := rr.Code; status != http.StatusCreated {
@@ -158,7 +161,7 @@ func TestRemoveBookHandler(t *testing.T) {
 
 	handler := NewRouter(
 		NewHandler(
-			storage.NewLibrary(*testLibPath)),
+			storage.NewLibrary(*testLibPath, *sqlUse)),
 	)
 	handler.ServeHTTP(rr, req)
 	if status := rr.Code; status != http.StatusNoContent {
@@ -189,7 +192,7 @@ func TestChangeBookHandler(t *testing.T) {
 	rr := httptest.NewRecorder()
 
 	handler := NewRouter(NewHandler(
-		storage.NewLibrary(*testLibPath)),
+		storage.NewLibrary(*testLibPath, *sqlUse)),
 	)
 	handler.ServeHTTP(rr, req)
 	if status := rr.Code; status != http.StatusOK {
@@ -215,7 +218,7 @@ func TestBookFilterHandler(t *testing.T) {
 
 	handler := NewRouter(
 		NewHandler(
-			storage.NewLibrary(*testLibPath)),
+			storage.NewLibrary(*testLibPath, *sqlUse)),
 	)
 	handler.ServeHTTP(rr, req)
 	if status := rr.Code; status != http.StatusOK {
