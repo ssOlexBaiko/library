@@ -20,7 +20,7 @@ type Storage interface {
 	CreateBook(book storage.Book) error
 	GetBook(id string) (storage.Book, error)
 	RemoveBook(id string) error
-	ChangeBook(id string, changedBook storage.Book) error
+	ChangeBook(changedBook storage.Book) error
 	PriceFilter(filter storage.BookFilter) (storage.Books, error)
 }
 

@@ -6,29 +6,27 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"strconv"
-
-	"github.com/twinj/uuid"
 )
 
 var (
 	// ErrNotFound describe the state when the object is not found in the storage
-	ErrNotFound = errors.New("can't find the book with given ID")
+	ErrNotFound             = errors.New("can't find the book with given ID")
+	ErrNotValidData         = errors.New("not valid data")
+	ErrUnsupportedOperation = errors.New("unsupported operation")
 )
 
 type library struct {
 	storage string
 	//storage io.ReadWriteCloser // Here you can put opened os.File object. After that you will be able to implement concurrent safe operations with file storage
-	useSql bool
 }
 
 // NewLibrary constructor for library struct.
 // Constructors are often used for initialize some data structures (map, slice, chan...)
 // or when you need some data preparation
 // or when you want to start some watchers (goroutines). In this case you also have to think about Close() method.
-func NewLibrary(pathToStorage string, useSql bool) *library {
+func NewLibrary(pathToStorage string) *library {
 	return &library{
 		storage: pathToStorage,
-		useSql:  useSql,
 	}
 }
 
@@ -58,22 +56,6 @@ func (l *library) wantedIndex(id string, books Books) (int, error) {
 func (l *library) GetBooks() (Books, error) {
 	var books Books
 
-	if l.useSql {
-		// Connection to the database
-		db, err := InitDB()
-		if err != nil {
-			return nil, err
-		}
-		// Close connection database
-		defer db.Close()
-		// SELECT * FROM books
-		if err = db.Find(&books).Error; err != nil {
-			return nil, err
-		}
-
-		return books, nil
-	}
-
 	path, err := filepath.Abs(l.storage)
 	if err != nil {
 		return nil, err
@@ -101,19 +83,7 @@ func (l *library) CreateBook(book Book) error {
 		return err
 	}
 
-	book.ID = uuid.NewV4().String()
-	if l.useSql {
-		// Connection to the database
-		db, err := InitDB()
-		if err != nil {
-			return err
-		}
-		// Close connection database
-		defer db.Close()
-
-		return db.Create(&book).Error
-	}
-
+	book.PrepareToCreate()
 	books, err := l.GetBooks()
 	if err != nil {
 		return err
@@ -126,21 +96,6 @@ func (l *library) CreateBook(book Book) error {
 // GetBook returns book object with specified id
 func (l *library) GetBook(id string) (Book, error) {
 	var b Book
-	if l.useSql {
-		// Connection to the database
-		db, err := InitDB()
-		if err != nil {
-			return b, err
-		}
-		// Close connection database
-		defer db.Close()
-
-		if err = db.Where("id = ?", id).First(&b).Error; err != nil {
-			return b, err
-		}
-
-		return b, nil
-	}
 
 	books, err := l.GetBooks()
 	if err != nil {
@@ -157,26 +112,6 @@ func (l *library) GetBook(id string) (Book, error) {
 
 // RemoveBook removes book object with specified id
 func (l *library) RemoveBook(id string) error {
-	if l.useSql {
-		var book Book
-		// Connection to the database
-		db, err := InitDB()
-		if err != nil {
-			return err
-		}
-		// Close connection database
-		defer db.Close()
-		if err = db.Where("id = ?", id).First(&book).Error; err != nil {
-			return err
-		}
-
-		if err = db.Delete(&book).Error; err != nil {
-			return err
-		}
-
-		return nil
-	}
-
 	books, err := l.GetBooks()
 	if err != nil {
 		return err
@@ -191,31 +126,14 @@ func (l *library) RemoveBook(id string) error {
 }
 
 // ChangeBook updates book object with specified id
-func (l *library) ChangeBook(id string, changedBook Book) error {
-	if l.useSql {
-		var book Book
-		// Connection to the database
-		db, err := InitDB()
-		if err != nil {
-			return err
-		}
-		// Close connection database
-		defer db.Close()
-		if err = db.Where("id = ?", id).First(&book).Error; err != nil {
-			return err
-		}
-		if err = db.Save(&changedBook).Error; err != nil {
-			return err
-		}
-		return nil
-	}
-
+// TODO: Changed object should be returned!!!!
+func (l *library) ChangeBook(changedBook Book) error {
 	books, err := l.GetBooks()
 	if err != nil {
 		return err
 	}
 
-	index, err := l.wantedIndex(id, books)
+	index, err := l.wantedIndex(changedBook.ID, books)
 	if err != nil {
 		return err
 	}
@@ -233,16 +151,12 @@ func (l *library) ChangeBook(id string, changedBook Book) error {
 func (l *library) PriceFilter(filter BookFilter) (Books, error) {
 	var wantedBooks Books
 
-	if l.useSql {
-		return wantedBooks, errors.New("NotImplemented")
-	}
 	if len(filter.Price) <= 1 {
-		return nil, errors.New("Not valid data")
+		return nil, ErrNotValidData
 	}
 	operator := string(filter.Price[0])
 	if operator != "<" && operator != ">" {
-		err := errors.New("unsupported operation")
-		return nil, err
+		return nil, ErrUnsupportedOperation
 	}
 
 	books, err := l.GetBooks()

@@ -9,8 +9,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/jinzhu/gorm"
 	"github.com/ssOlexBaiko/library/storage"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
 )
 
 // add flag for setting path to the storage and for using sql db
@@ -56,7 +58,7 @@ func TestIndexHandler(t *testing.T) {
 	rr := httptest.NewRecorder()
 
 	handler := NewRouter(NewHandler(
-		storage.NewLibrary(*testLibPath, *sqlUse)),
+		storage.NewLibrary(*testLibPath, *sqlUse, nil)),
 	)
 	handler.ServeHTTP(rr, req)
 	if status := rr.Code; status != http.StatusOK {
@@ -77,6 +79,16 @@ func TestBooksIndexHandler(t *testing.T) {
 	test.NoError(err, "test failed")
 }
 
+type ExampleSuite struct {
+	suite.Suite
+	db *gorm.DB
+}
+
+func (s *ExampleSuite) BeforeTest() {
+	// TODO: !!!!!!!!!
+	s.db, _ = storage.InitDB()
+}
+
 func TestGetBookHandler(t *testing.T) {
 	test := assert.New(t)
 	books, err := getTestBooks(t)
@@ -88,18 +100,20 @@ func TestGetBookHandler(t *testing.T) {
 		test.FailNow(err.Error())
 	}
 
-	rr := httptest.NewRecorder()
+	for _, useSQL := range []bool{true, false} {
+		rr := httptest.NewRecorder()
 
-	handler := NewRouter(NewHandler(
-		storage.NewLibrary(*testLibPath, *sqlUse)),
-	)
-	handler.ServeHTTP(rr, req)
+		handler := NewRouter(NewHandler(
+			storage.NewLibrary(*testLibPath, useSQL, nil)),
+		)
+		handler.ServeHTTP(rr, req)
 
-	test.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
+		test.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
 
-	var book storage.Book
-	err = json.NewDecoder(rr.Body).Decode(&book)
-	test.NoError(err, "handler returned wrong data")
+		var book storage.Book
+		err = json.NewDecoder(rr.Body).Decode(&book)
+		test.NoError(err, "handler returned wrong data")
+	}
 }
 
 func TestBookCreateHandler(t *testing.T) {
