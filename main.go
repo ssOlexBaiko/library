@@ -11,13 +11,14 @@ import (
 )
 
 var libPath = flag.String("libPath", "storage/storage.json", "set path the storage file")
+var useSql = flag.Bool("useSql", false, "use sql db instead of json file")
 
 func main() {
 	flag.Parse()
 
 	router := web.NewRouter(
 		web.NewHandler(
-			storage.NewLibrary(*libPath),
+			storage.NewLibrary(*libPath, *useSql),
 		),
 	)
 

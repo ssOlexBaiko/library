@@ -18,15 +18,17 @@ var (
 type library struct {
 	storage string
 	//storage io.ReadWriteCloser // Here you can put opened os.File object. After that you will be able to implement concurrent safe operations with file storage
+	useSql bool
 }
 
 // NewLibrary constructor for library struct.
 // Constructors are often used for initialize some data structures (map, slice, chan...)
 // or when you need some data preparation
 // or when you want to start some watchers (goroutines). In this case you also have to think about Close() method.
-func NewLibrary(pathToStorage string) *library {
+func NewLibrary(pathToStorage string, useSql bool) *library {
 	return &library{
 		storage: pathToStorage,
+		useSql:  useSql,
 	}
 }
 
@@ -56,6 +58,22 @@ func (l *library) wantedIndex(id string, books Books) (int, error) {
 func (l *library) GetBooks() (Books, error) {
 	var books Books
 
+	if l.useSql {
+		// Connection to the database
+		db, err := InitDB()
+		if err != nil {
+			return nil, err
+		}
+		// Close connection database
+		defer db.Close()
+		// SELECT * FROM books
+		if err = db.Find(&books).Error; err != nil {
+			return nil, err
+		}
+
+		return books, nil
+	}
+
 	path, err := filepath.Abs(l.storage)
 	if err != nil {
 		return nil, err
@@ -83,20 +101,47 @@ func (l *library) CreateBook(book Book) error {
 		return err
 	}
 
+	book.ID = uuid.NewV4().String()
+	if l.useSql {
+		// Connection to the database
+		db, err := InitDB()
+		if err != nil {
+			return err
+		}
+		// Close connection database
+		defer db.Close()
+
+		return db.Create(&book).Error
+	}
+
 	books, err := l.GetBooks()
 	if err != nil {
 		return err
 	}
 
-	book.ID = uuid.NewV4().String()
 	books = append(books, book)
 	return l.writeData(books)
-
 }
 
 // GetBook returns book object with specified id
 func (l *library) GetBook(id string) (Book, error) {
 	var b Book
+	if l.useSql {
+		// Connection to the database
+		db, err := InitDB()
+		if err != nil {
+			return b, err
+		}
+		// Close connection database
+		defer db.Close()
+
+		if err = db.Where("id = ?", id).First(&b).Error; err != nil {
+			return b, err
+		}
+
+		return b, nil
+	}
+
 	books, err := l.GetBooks()
 	if err != nil {
 		return b, err
@@ -112,6 +157,26 @@ func (l *library) GetBook(id string) (Book, error) {
 
 // RemoveBook removes book object with specified id
 func (l *library) RemoveBook(id string) error {
+	if l.useSql {
+		var book Book
+		// Connection to the database
+		db, err := InitDB()
+		if err != nil {
+			return err
+		}
+		// Close connection database
+		defer db.Close()
+		if err = db.Where("id = ?", id).First(&book).Error; err != nil {
+			return err
+		}
+
+		if err = db.Delete(&book).Error; err != nil {
+			return err
+		}
+
+		return nil
+	}
+
 	books, err := l.GetBooks()
 	if err != nil {
 		return err
@@ -127,6 +192,24 @@ func (l *library) RemoveBook(id string) error {
 
 // ChangeBook updates book object with specified id
 func (l *library) ChangeBook(id string, changedBook Book) error {
+	if l.useSql {
+		var book Book
+		// Connection to the database
+		db, err := InitDB()
+		if err != nil {
+			return err
+		}
+		// Close connection database
+		defer db.Close()
+		if err = db.Where("id = ?", id).First(&book).Error; err != nil {
+			return err
+		}
+		if err = db.Save(&changedBook).Error; err != nil {
+			return err
+		}
+		return nil
+	}
+
 	books, err := l.GetBooks()
 	if err != nil {
 		return err
@@ -150,6 +233,9 @@ func (l *library) ChangeBook(id string, changedBook Book) error {
 func (l *library) PriceFilter(filter BookFilter) (Books, error) {
 	var wantedBooks Books
 
+	if l.useSql {
+		return wantedBooks, errors.New("NotImplemented")
+	}
 	if len(filter.Price) <= 1 {
 		return nil, errors.New("Not valid data")
 	}
