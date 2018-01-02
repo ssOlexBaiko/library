@@ -157,7 +157,7 @@ func (h *handler) ChangeBookHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	fmt.Println(book)
+
 	err = json.NewDecoder(r.Body).Decode(&book)
 	if err != nil {
 		log.Println(err)
@@ -165,7 +165,6 @@ func (h *handler) ChangeBookHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	fmt.Println(book)
 
 	err = h.storage.ChangeBook(book)
 	if err != nil {

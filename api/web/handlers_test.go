@@ -198,7 +198,7 @@ func TestChangeBookHandler(t *testing.T) {
 		t.Errorf("test failed: %v", err)
 	}
 
-	testBook := storage.Book{Title: "test"}
+	testBook := storage.Book{Title: "test", ID: books[0].ID}
 	book, err := json.Marshal(testBook)
 	if err != nil {
 		t.Fatal(err)
