@@ -33,15 +33,14 @@ func main() {
 	}()
 
 	flag.Parse()
-	switch *useSql {
-	case true:
+	if *useSql {
 		sqlStorage, err = storage.InitDB()
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		store = storage.NewSQLLibrary(sqlStorage)
-	case false:
+	} else {
 		store = storage.NewLibrary(*libPath)
 	}
 

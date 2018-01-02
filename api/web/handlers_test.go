@@ -13,6 +13,8 @@ import (
 	"github.com/ssOlexBaiko/library/storage"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+	"github.com/gorilla/mux"
+	"log"
 )
 
 // add flag for setting path to the storage and for using sql db
@@ -20,6 +22,26 @@ var (
 	testLibPath = flag.String("libPath", "test_data/test_storage.json", "set path the storage file")
 	sqlUse      = flag.Bool("sqlUse", false, "use sql db instead of json file")
 )
+
+func getRouter() *mux.Router {
+	var store Storage
+	flag.Parse()
+	if *sqlUse {
+		sqlStorage, err := storage.InitDB()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		store = storage.NewSQLLibrary(sqlStorage)
+	} else {
+		store = storage.NewLibrary(*testLibPath)
+	}
+
+	router := NewRouter(
+		NewHandler(store),
+	)
+	return router
+}
 
 func getTestBooks(t *testing.T) (storage.Books, error) {
 	//t.Helper() //is available in go1.9 release
@@ -30,9 +52,7 @@ func getTestBooks(t *testing.T) (storage.Books, error) {
 
 	rr := httptest.NewRecorder()
 
-	handler := NewRouter(NewHandler(
-		storage.NewLibrary(*testLibPath, *sqlUse)),
-	)
+	handler := getRouter()
 	handler.ServeHTTP(rr, req)
 	if rr.Code != http.StatusOK {
 		return nil, errors.New("BooksIndex handler returned wrong status code")
@@ -47,8 +67,6 @@ func getTestBooks(t *testing.T) (storage.Books, error) {
 }
 
 func TestIndexHandler(t *testing.T) {
-	// hook for setting libPath as /api/web/test/test_storage.json
-	flag.Parse()
 
 	req, err := http.NewRequest("GET", "/", nil)
 	if err != nil {
@@ -57,9 +75,7 @@ func TestIndexHandler(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 
-	handler := NewRouter(NewHandler(
-		storage.NewLibrary(*testLibPath, *sqlUse, nil)),
-	)
+	handler := getRouter()
 	handler.ServeHTTP(rr, req)
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v",
@@ -100,20 +116,17 @@ func TestGetBookHandler(t *testing.T) {
 		test.FailNow(err.Error())
 	}
 
-	for _, useSQL := range []bool{true, false} {
-		rr := httptest.NewRecorder()
+	rr := httptest.NewRecorder()
 
-		handler := NewRouter(NewHandler(
-			storage.NewLibrary(*testLibPath, useSQL, nil)),
-		)
-		handler.ServeHTTP(rr, req)
+	handler := getRouter()
+	handler.ServeHTTP(rr, req)
 
-		test.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
+	test.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
 
-		var book storage.Book
-		err = json.NewDecoder(rr.Body).Decode(&book)
-		test.NoError(err, "handler returned wrong data")
-	}
+	var book storage.Book
+	err = json.NewDecoder(rr.Body).Decode(&book)
+	test.NoError(err, "handler returned wrong data")
+
 }
 
 func TestBookCreateHandler(t *testing.T) {
@@ -137,9 +150,7 @@ func TestBookCreateHandler(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 
-	handler := NewRouter(NewHandler(
-		storage.NewLibrary(*testLibPath, *sqlUse)),
-	)
+	handler := getRouter()
 	handler.ServeHTTP(rr, req)
 	if status := rr.Code; status != http.StatusCreated {
 		t.Errorf("handler returned wrong status code: got %v want %v",
@@ -173,10 +184,7 @@ func TestRemoveBookHandler(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 
-	handler := NewRouter(
-		NewHandler(
-			storage.NewLibrary(*testLibPath, *sqlUse)),
-	)
+	handler := getRouter()
 	handler.ServeHTTP(rr, req)
 	if status := rr.Code; status != http.StatusNoContent {
 		t.Errorf("handler returned wrong status code: got %v want %v",
@@ -205,9 +213,7 @@ func TestChangeBookHandler(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 
-	handler := NewRouter(NewHandler(
-		storage.NewLibrary(*testLibPath, *sqlUse)),
-	)
+	handler := getRouter()
 	handler.ServeHTTP(rr, req)
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v",
@@ -230,10 +236,7 @@ func TestBookFilterHandler(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 
-	handler := NewRouter(
-		NewHandler(
-			storage.NewLibrary(*testLibPath, *sqlUse)),
-	)
+	handler := getRouter()
 	handler.ServeHTTP(rr, req)
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v",

@@ -2,7 +2,7 @@ package storage
 
 import (
 	"github.com/jinzhu/gorm"
-	"github.com/pkg/errors"
+	"errors"
 )
 
 type sqlLibrary struct {
