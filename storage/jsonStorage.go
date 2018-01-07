@@ -1,10 +1,11 @@
 package storage
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
+	"io"
 	"io/ioutil"
-	"path/filepath"
 	"strconv"
 )
 
@@ -16,31 +17,32 @@ var (
 )
 
 type library struct {
-	storage string
-	//storage io.ReadWriteCloser // Here you can put opened os.File object. After that you will be able to implement concurrent safe operations with file storage
+	//storage string
+	storage io.ReadWriteCloser // Here you can put opened os.File object. After that you will be able to implement concurrent safe operations with file storage
 }
 
 // NewLibrary constructor for library struct.
 // Constructors are often used for initialize some data structures (map, slice, chan...)
 // or when you need some data preparation
 // or when you want to start some watchers (goroutines). In this case you also have to think about Close() method.
-func NewLibrary(pathToStorage string) *library {
+func NewLibrary(file io.ReadWriteCloser) *library {
 	return &library{
-		storage: pathToStorage,
+		storage: file,
 	}
 }
 
 func (l *library) writeData(books Books) error {
-	path, err := filepath.Abs(l.storage)
-	if err != nil {
-		return err
-	}
-
-	booksBytes, err := json.MarshalIndent(books, "", "    ")
-	if err != nil {
-		return err
-	}
-	return ioutil.WriteFile(path, booksBytes, 0644)
+	//path, err := filepath.Abs(l.storage)
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//booksBytes, err := json.MarshalIndent(books, "", "    ")
+	//if err != nil {
+	//	return err
+	//}
+	//return ioutil.WriteFile(path, booksBytes, 0644)
+	return nil
 }
 
 func (l *library) wantedIndex(id string, books Books) (int, error) {
@@ -56,16 +58,11 @@ func (l *library) wantedIndex(id string, books Books) (int, error) {
 func (l *library) GetBooks() (Books, error) {
 	var books Books
 
-	path, err := filepath.Abs(l.storage)
+	file, err := ioutil.ReadAll(l.storage)
 	if err != nil {
 		return nil, err
 	}
-
-	file, err := ioutil.ReadFile(path)
-	if err != nil {
-		return nil, err
-	}
-
+	l.storageioutil.NopCloser(bytes.NewBuffer(file))
 	return books, json.Unmarshal(file, &books)
 }
 
@@ -84,13 +81,18 @@ func (l *library) CreateBook(book Book) error {
 	}
 
 	book.PrepareToCreate()
-	books, err := l.GetBooks()
+	//books, err := l.GetBooks()
+	//if err != nil {
+	//	return err
+	//}
+	//
+	//books = append(books, book)
+	b, err := json.Marshal(book)
 	if err != nil {
 		return err
 	}
-
-	books = append(books, book)
-	return l.writeData(books)
+	_, err = l.storage.Write(b)
+	return err
 }
 
 // GetBook returns book object with specified id

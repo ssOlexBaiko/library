@@ -9,11 +9,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	"github.com/ssOlexBaiko/library/storage"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"github.com/gorilla/mux"
 	"log"
 )
 

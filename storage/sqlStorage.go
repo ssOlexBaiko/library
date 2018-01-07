@@ -1,8 +1,8 @@
 package storage
 
 import (
-	"github.com/jinzhu/gorm"
 	"errors"
+	"github.com/jinzhu/gorm"
 )
 
 type sqlLibrary struct {
