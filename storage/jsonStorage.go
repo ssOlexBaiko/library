@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
-	"path/filepath"
+	"os"
 	"strconv"
 )
 
@@ -16,31 +16,17 @@ var (
 )
 
 type library struct {
-	storage string
-	//storage io.ReadWriteCloser // Here you can put opened os.File object. After that you will be able to implement concurrent safe operations with file storage
+	storage *os.File // Here you can put opened os.File object. After that you will be able to implement concurrent safe operations with file storage
 }
 
 // NewLibrary constructor for library struct.
 // Constructors are often used for initialize some data structures (map, slice, chan...)
 // or when you need some data preparation
 // or when you want to start some watchers (goroutines). In this case you also have to think about Close() method.
-func NewLibrary(pathToStorage string) *library {
+func NewLibrary(file *os.File) *library {
 	return &library{
-		storage: pathToStorage,
+		storage: file,
 	}
-}
-
-func (l *library) writeData(books Books) error {
-	path, err := filepath.Abs(l.storage)
-	if err != nil {
-		return err
-	}
-
-	booksBytes, err := json.MarshalIndent(books, "", "    ")
-	if err != nil {
-		return err
-	}
-	return ioutil.WriteFile(path, booksBytes, 0644)
 }
 
 func (l *library) wantedIndex(id string, books Books) (int, error) {
@@ -56,16 +42,15 @@ func (l *library) wantedIndex(id string, books Books) (int, error) {
 func (l *library) GetBooks() (Books, error) {
 	var books Books
 
-	path, err := filepath.Abs(l.storage)
+	_, err := l.storage.Seek(0, 0)
 	if err != nil {
 		return nil, err
 	}
 
-	file, err := ioutil.ReadFile(path)
+	file, err := ioutil.ReadAll(l.storage)
 	if err != nil {
 		return nil, err
 	}
-
 	return books, json.Unmarshal(file, &books)
 }
 
@@ -90,7 +75,22 @@ func (l *library) CreateBook(book Book) error {
 	}
 
 	books = append(books, book)
-	return l.writeData(books)
+	byteBooks, err := json.MarshalIndent(books, "", "    ")
+	if err != nil {
+		return err
+	}
+	// hook for "clearing" file, seeking to it's zero position,
+	// and then writing updated Books to file
+	err = l.storage.Truncate(0)
+	if err != nil {
+		return err
+	}
+	_, err = l.storage.Seek(0, 0)
+	if err != nil {
+		return err
+	}
+	_, err = l.storage.Write(byteBooks)
+	return err
 }
 
 // GetBook returns book object with specified id
@@ -122,20 +122,36 @@ func (l *library) RemoveBook(id string) error {
 		return err
 	}
 	books = append(books[:index], books[index+1:]...)
-	return l.writeData(books)
+	byteBooks, err := json.MarshalIndent(books, "", "    ")
+	if err != nil {
+		return err
+	}
+	// hook for "clearing" file, seeking to it's position to zero,
+	// and then writing updated Books
+	err = l.storage.Truncate(0)
+	if err != nil {
+		return err
+	}
+	_, err = l.storage.Seek(0, 0)
+	if err != nil {
+		return err
+	}
+	_, err = l.storage.Write(byteBooks)
+	return err
 }
 
 // ChangeBook updates book object with specified id
-// TODO: Changed object should be returned!!!!
-func (l *library) ChangeBook(changedBook Book) error {
+func (l *library) ChangeBook(changedBook Book) (Book, error) {
+	// заглушка для повернення помилки
+	var b Book
 	books, err := l.GetBooks()
 	if err != nil {
-		return err
+		return b, err
 	}
 
 	index, err := l.wantedIndex(changedBook.ID, books)
 	if err != nil {
-		return err
+		return b, err
 	}
 
 	book := &books[index]
@@ -143,8 +159,23 @@ func (l *library) ChangeBook(changedBook Book) error {
 	book.Title = changedBook.Title
 	book.Pages = changedBook.Pages
 	book.Genres = changedBook.Genres
-	err = l.writeData(books)
-	return err
+	byteBooks, err := json.MarshalIndent(books, "", "    ")
+	if err != nil {
+		return b, err
+	}
+	// hook for "clearing" file, seeking to it's position to zero,
+	// and then writing updated Books
+	err = l.storage.Truncate(0)
+	if err != nil {
+		return b, err
+	}
+	_, err = l.storage.Seek(0, 0)
+	if err != nil {
+		return b, err
+	}
+	_, err = l.storage.Write(byteBooks)
+
+	return *book, err
 }
 
 // PriceFilter returns filtered book objects

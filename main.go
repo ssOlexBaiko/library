@@ -5,6 +5,8 @@ import (
 	"net/http"
 
 	"flag"
+	"os"
+	"path/filepath"
 
 	"github.com/jinzhu/gorm"
 	"github.com/ssOlexBaiko/library/api/web"
@@ -19,6 +21,7 @@ var (
 func main() {
 	var (
 		sqlStorage *gorm.DB
+		path       string
 		err        error
 		store      web.Storage
 	)
@@ -32,17 +35,25 @@ func main() {
 		}
 	}()
 
+	path, err = filepath.Abs(*libPath)
+	if err != nil {
+		log.Fatal(err)
+	}
 	flag.Parse()
-	switch *useSql {
-	case true:
+	if *useSql {
 		sqlStorage, err = storage.InitDB()
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		store = storage.NewSQLLibrary(sqlStorage)
-	case false:
-		store = storage.NewLibrary(*libPath)
+	} else {
+		file, err := os.OpenFile(path, os.O_RDWR, 0660)
+		defer file.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+		store = storage.NewLibrary(file)
 	}
 
 	router := web.NewRouter(

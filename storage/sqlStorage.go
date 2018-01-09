@@ -2,7 +2,7 @@ package storage
 
 import (
 	"github.com/jinzhu/gorm"
-	"github.com/pkg/errors"
+	"strconv"
 )
 
 type sqlLibrary struct {
@@ -46,15 +46,40 @@ func (l *sqlLibrary) RemoveBook(id string) error {
 	return err
 }
 
-func (l *sqlLibrary) ChangeBook(changedBook Book) error {
+func (l *sqlLibrary) ChangeBook(changedBook Book) (Book, error) {
+	var book Book
 	err := l.sqlStorage.Update(&changedBook).Error
 	if err == gorm.ErrRecordNotFound {
-		return ErrNotFound
+		return book, ErrNotFound
 	}
 
-	return err
+	return changedBook, err
 }
 
 func (l *sqlLibrary) PriceFilter(filter BookFilter) (Books, error) {
-	return nil, errors.New("NotImplemented")
+	var books Books
+	if len(filter.Price) <= 1 {
+		return nil, ErrNotValidData
+	}
+	operator := string(filter.Price[0])
+	if operator != "<" && operator != ">" {
+		return nil, ErrUnsupportedOperation
+	}
+
+	price, err := strconv.ParseFloat(filter.Price[1:], 64)
+	if err != nil {
+		return nil, err
+	}
+	if operator == ">" {
+		err := l.sqlStorage.Find(&books, "price > ?", price).Error
+		if err != nil {
+			return nil, err
+		} else {
+			err := l.sqlStorage.Find(&books, "price < ?", price).Error
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	return books, err
 }
