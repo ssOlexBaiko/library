@@ -10,11 +10,13 @@ import (
 	"testing"
 
 	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
+	//"github.com/jinzhu/gorm"
 	"github.com/ssOlexBaiko/library/storage"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/suite"
+	//"github.com/stretchr/testify/suite"
 	"log"
+	"os"
+	"path/filepath"
 )
 
 // add flag for setting path to the storage and for using sql db
@@ -23,7 +25,29 @@ var (
 	sqlUse      = flag.Bool("sqlUse", false, "use sql db instead of json file")
 )
 
-func getRouter() *mux.Router {
+func TestWeb(t *testing.T) {
+	// hook for passing the same open file for test cases
+	// and closing the file when all tests will pass
+	path, err := filepath.Abs(*testLibPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	file, err := os.OpenFile(path, os.O_RDWR, 0660)
+	defer file.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	testIndexHandler(t, file)
+	testBooksIndexHandler(t, file)
+	testGetBookHandler(t, file)
+	testBookCreateHandler(t, file)
+	testRemoveBookHandler(t, file)
+	testChangeBookHandler(t, file)
+	testBookFilterHandler(t, file)
+}
+
+func getRouter(file *os.File) *mux.Router {
 	var store Storage
 	flag.Parse()
 	if *sqlUse {
@@ -34,7 +58,8 @@ func getRouter() *mux.Router {
 
 		store = storage.NewSQLLibrary(sqlStorage)
 	} else {
-		store = storage.NewLibrary(*testLibPath)
+
+		store = storage.NewLibrary(file)
 	}
 
 	router := NewRouter(
@@ -43,7 +68,7 @@ func getRouter() *mux.Router {
 	return router
 }
 
-func getTestBooks(t *testing.T) (storage.Books, error) {
+func getTestBooks(t *testing.T, file *os.File) (storage.Books, error) {
 	//t.Helper() //is available in go1.9 release
 	req, err := http.NewRequest("GET", "/books", nil)
 	if err != nil {
@@ -52,7 +77,7 @@ func getTestBooks(t *testing.T) (storage.Books, error) {
 
 	rr := httptest.NewRecorder()
 
-	handler := getRouter()
+	handler := getRouter(file)
 	handler.ServeHTTP(rr, req)
 	if rr.Code != http.StatusOK {
 		return nil, errors.New("BooksIndex handler returned wrong status code")
@@ -66,7 +91,7 @@ func getTestBooks(t *testing.T) (storage.Books, error) {
 	return books, nil
 }
 
-func TestIndexHandler(t *testing.T) {
+func testIndexHandler(t *testing.T, file *os.File) {
 
 	req, err := http.NewRequest("GET", "/", nil)
 	if err != nil {
@@ -75,7 +100,7 @@ func TestIndexHandler(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 
-	handler := getRouter()
+	handler := getRouter(file)
 	handler.ServeHTTP(rr, req)
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v",
@@ -89,25 +114,25 @@ func TestIndexHandler(t *testing.T) {
 	}
 }
 
-func TestBooksIndexHandler(t *testing.T) {
+func testBooksIndexHandler(t *testing.T, file *os.File) {
 	test := assert.New(t)
-	_, err := getTestBooks(t)
+	_, err := getTestBooks(t, file)
 	test.NoError(err, "test failed")
 }
 
-type ExampleSuite struct {
-	suite.Suite
-	db *gorm.DB
-}
+//type ExampleSuite struct {
+//	suite.Suite
+//	db *gorm.DB
+//}
 
-func (s *ExampleSuite) BeforeTest() {
-	// TODO: !!!!!!!!!
-	s.db, _ = storage.InitDB()
-}
+//func (s *ExampleSuite) BeforeTest() {
+//	// TODO: !!!!!!!!!
+//	s.db, _ = storage.InitDB()
+//}
 
-func TestGetBookHandler(t *testing.T) {
+func testGetBookHandler(t *testing.T, file *os.File) {
 	test := assert.New(t)
-	books, err := getTestBooks(t)
+	books, err := getTestBooks(t, file)
 	test.NoError(err, "test failed")
 
 	url := "/books/" + books[0].ID
@@ -118,7 +143,7 @@ func TestGetBookHandler(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 
-	handler := getRouter()
+	handler := getRouter(file)
 	handler.ServeHTTP(rr, req)
 
 	test.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
@@ -129,7 +154,7 @@ func TestGetBookHandler(t *testing.T) {
 
 }
 
-func TestBookCreateHandler(t *testing.T) {
+func testBookCreateHandler(t *testing.T, file *os.File) {
 	testBook := storage.Book{
 		Title:  "TestBook",
 		Genres: []string{"test1", "test2"},
@@ -150,7 +175,7 @@ func TestBookCreateHandler(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 
-	handler := getRouter()
+	handler := getRouter(file)
 	handler.ServeHTTP(rr, req)
 	if status := rr.Code; status != http.StatusCreated {
 		t.Errorf("handler returned wrong status code: got %v want %v",
@@ -158,7 +183,7 @@ func TestBookCreateHandler(t *testing.T) {
 	}
 
 	// Check data!
-	books, err := getTestBooks(t)
+	books, err := getTestBooks(t, file)
 	addedBook := false
 	for _, b := range books {
 		if b.Title == testBook.Title {
@@ -170,8 +195,8 @@ func TestBookCreateHandler(t *testing.T) {
 	}
 }
 
-func TestRemoveBookHandler(t *testing.T) {
-	books, err := getTestBooks(t)
+func testRemoveBookHandler(t *testing.T, file *os.File) {
+	books, err := getTestBooks(t, file)
 	if err != nil {
 		t.Errorf("test failed: %v", err)
 	}
@@ -184,7 +209,7 @@ func TestRemoveBookHandler(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 
-	handler := getRouter()
+	handler := getRouter(file)
 	handler.ServeHTTP(rr, req)
 	if status := rr.Code; status != http.StatusNoContent {
 		t.Errorf("handler returned wrong status code: got %v want %v",
@@ -192,8 +217,8 @@ func TestRemoveBookHandler(t *testing.T) {
 	}
 }
 
-func TestChangeBookHandler(t *testing.T) {
-	books, err := getTestBooks(t)
+func testChangeBookHandler(t *testing.T, file *os.File) {
+	books, err := getTestBooks(t, file)
 	if err != nil {
 		t.Errorf("test failed: %v", err)
 	}
@@ -213,7 +238,7 @@ func TestChangeBookHandler(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 
-	handler := getRouter()
+	handler := getRouter(file)
 	handler.ServeHTTP(rr, req)
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v",
@@ -221,7 +246,7 @@ func TestChangeBookHandler(t *testing.T) {
 	}
 }
 
-func TestBookFilterHandler(t *testing.T) {
+func testBookFilterHandler(t *testing.T, file *os.File) {
 	price := storage.BookFilter{Price: "<77"}
 	filter, err := json.Marshal(price)
 	if err != nil {
@@ -236,7 +261,7 @@ func TestBookFilterHandler(t *testing.T) {
 
 	rr := httptest.NewRecorder()
 
-	handler := getRouter()
+	handler := getRouter(file)
 	handler.ServeHTTP(rr, req)
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v",

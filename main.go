@@ -5,13 +5,12 @@ import (
 	"net/http"
 
 	"flag"
+	"os"
+	"path/filepath"
 
 	"github.com/jinzhu/gorm"
 	"github.com/ssOlexBaiko/library/api/web"
 	"github.com/ssOlexBaiko/library/storage"
-	"io"
-	"os"
-	"path/filepath"
 )
 
 var (
@@ -49,8 +48,7 @@ func main() {
 
 		store = storage.NewSQLLibrary(sqlStorage)
 	} else {
-		var file io.ReadWriteCloser
-		file, err := os.OpenFile(path, os.O_RDWR|os.O_APPEND, 0660)
+		file, err := os.OpenFile(path, os.O_RDWR, 0660)
 		defer file.Close()
 		if err != nil {
 			log.Fatal(err)

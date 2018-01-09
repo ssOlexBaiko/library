@@ -20,7 +20,7 @@ type Storage interface {
 	CreateBook(book storage.Book) error
 	GetBook(id string) (storage.Book, error)
 	RemoveBook(id string) error
-	ChangeBook(changedBook storage.Book) error
+	ChangeBook(changedBook storage.Book) (storage.Book, error)
 	PriceFilter(filter storage.BookFilter) (storage.Books, error)
 }
 
@@ -166,7 +166,7 @@ func (h *handler) ChangeBookHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.storage.ChangeBook(book)
+	book, err = h.storage.ChangeBook(book)
 	if err != nil {
 		if err == storage.ErrNotFound {
 			w.WriteHeader(http.StatusNotFound)
@@ -174,6 +174,12 @@ func (h *handler) ChangeBookHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err)
+		return
+	}
+	err = json.NewEncoder(w).Encode(book)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 }
