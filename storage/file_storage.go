@@ -11,7 +11,7 @@ import (
 )
 
 type library struct {
-	mu      sync.Mutex // Use the force Luke!
+	mu      sync.RWMutex // Use the force Luke!
 	storage *os.File   // Here you can put opened os.File object. After that you will be able to implement concurrent safe operations with file storage
 }
 
@@ -47,6 +47,12 @@ func (l *library) wantedIndex(id string, books Books) (int, error) {
 
 //GetBooks returns all book objects
 func (l *library) GetBooks() (Books, error) {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+	return l.getBooks()
+
+}
+func (l *library) getBooks() (Books, error) {
 	var books Books
 
 	_, err := l.storage.Seek(0, 0)
@@ -63,6 +69,8 @@ func (l *library) GetBooks() (Books, error) {
 
 // CreateBook adds book object into db
 func (l *library) CreateBook(book Book) error {
+	l.mu.Lock()
+	defer l.mu.Unlock()
 	err := errors.New("not all fields are populated")
 	switch {
 	case book.Genres == nil:
@@ -76,7 +84,7 @@ func (l *library) CreateBook(book Book) error {
 	}
 
 	book.PrepareToCreate()
-	books, err := l.GetBooks()
+	books, err := l.getBooks()
 	if err != nil {
 		return err
 	}
@@ -119,7 +127,10 @@ func (l *library) GetBook(id string) (Book, error) {
 
 // RemoveBook removes book object with specified id
 func (l *library) RemoveBook(id string) error {
-	books, err := l.GetBooks()
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
+	books, err := l.getBooks()
 	if err != nil {
 		return err
 	}
@@ -149,9 +160,12 @@ func (l *library) RemoveBook(id string) error {
 
 // ChangeBook updates book object with specified id
 func (l *library) ChangeBook(changedBook Book) (Book, error) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
 	// заглушка для повернення помилки
 	var b Book
-	books, err := l.GetBooks()
+	books, err := l.getBooks()
 	if err != nil {
 		return b, err
 	}
