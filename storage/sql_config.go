@@ -5,9 +5,9 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func InitDB() (*gorm.DB, error) {
+func InitDB(sqlStoragePath string) (*gorm.DB, error) {
 	// Opening file
-	db, err := gorm.Open("sqlite3", "storage/data.db")
+	db, err := gorm.Open("sqlite3", sqlStoragePath)
 	if err != nil {
 		return nil, err
 	}

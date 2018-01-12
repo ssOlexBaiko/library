@@ -1,18 +1,27 @@
 package storage
 
 import (
-	"github.com/jinzhu/gorm"
 	"strconv"
+
+	"github.com/jinzhu/gorm"
+	"github.com/pkg/errors"
 )
 
 type sqlLibrary struct {
 	sqlStorage *gorm.DB
 }
 
-func NewSQLLibrary(sqlStorage *gorm.DB) *sqlLibrary {
-	return &sqlLibrary{
-		sqlStorage,
+func (l sqlLibrary) Close() error {
+	return l.sqlStorage.Close()
+}
+
+func NewSQLLibrary(sqlStoragePath string) (*sqlLibrary, error) {
+	sqlStorage, err := InitDB(sqlStoragePath)
+	if err != nil {
+		return nil, err
 	}
+
+	return &sqlLibrary{sqlStorage}, nil
 }
 
 func (l *sqlLibrary) GetBooks() (Books, error) {
@@ -29,7 +38,7 @@ func (l *sqlLibrary) CreateBook(book Book) error {
 func (l *sqlLibrary) GetBook(id string) (Book, error) {
 	var book Book
 
-	err := l.sqlStorage.Where("id = ?", id).First(&book).Error
+	err := l.sqlStorage.Where(&book, id).Error
 	if err == gorm.ErrRecordNotFound {
 		return book, ErrNotFound
 	}
@@ -38,12 +47,16 @@ func (l *sqlLibrary) GetBook(id string) (Book, error) {
 }
 
 func (l *sqlLibrary) RemoveBook(id string) error {
-	err := l.sqlStorage.Where("id = ?", id).Delete(&Book{}).Error
-	if err == gorm.ErrRecordNotFound {
+	query := l.sqlStorage.Where("id = ?", id).Delete(&Book{})
+	if query.Error != nil {
+		return errors.Wrap(query.Error, "can't delete book")
+	}
+
+	if query.RowsAffected == 0 {
 		return ErrNotFound
 	}
 
-	return err
+	return nil
 }
 
 func (l *sqlLibrary) ChangeBook(changedBook Book) (Book, error) {
@@ -66,6 +79,7 @@ func (l *sqlLibrary) PriceFilter(filter BookFilter) (Books, error) {
 		return nil, ErrUnsupportedOperation
 	}
 
+	// What you will do when you need to handle ">=" or "<=" ?
 	price, err := strconv.ParseFloat(filter.Price[1:], 64)
 	if err != nil {
 		return nil, err

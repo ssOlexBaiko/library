@@ -5,28 +5,35 @@ import (
 	"errors"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strconv"
-)
-
-var (
-	// ErrNotFound describe the state when the object is not found in the storage
-	ErrNotFound             = errors.New("can't find the book with given ID")
-	ErrNotValidData         = errors.New("not valid data")
-	ErrUnsupportedOperation = errors.New("unsupported operation")
+	"sync"
 )
 
 type library struct {
-	storage *os.File // Here you can put opened os.File object. After that you will be able to implement concurrent safe operations with file storage
+	mu      sync.Mutex // Use the force Luke!
+	storage *os.File   // Here you can put opened os.File object. After that you will be able to implement concurrent safe operations with file storage
+}
+
+func (l library) Close() error {
+	return l.storage.Close()
 }
 
 // NewLibrary constructor for library struct.
 // Constructors are often used for initialize some data structures (map, slice, chan...)
 // or when you need some data preparation
 // or when you want to start some watchers (goroutines). In this case you also have to think about Close() method.
-func NewLibrary(file *os.File) *library {
-	return &library{
-		storage: file,
+func NewLibrary(path string) (*library, error) {
+	path, err := filepath.Abs(path)
+	if err != nil {
+		return nil, err
 	}
+	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0660)
+	defer file.Close()
+	if err != nil {
+		return nil, err
+	}
+	return &library{storage: file}, nil
 }
 
 func (l *library) wantedIndex(id string, books Books) (int, error) {
@@ -154,6 +161,7 @@ func (l *library) ChangeBook(changedBook Book) (Book, error) {
 		return b, err
 	}
 
+	// What would happen if user omits some field?
 	book := &books[index]
 	book.Price = changedBook.Price
 	book.Title = changedBook.Title
