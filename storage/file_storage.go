@@ -71,6 +71,7 @@ func (l *library) getBooks() (Books, error) {
 func (l *library) CreateBook(book Book) error {
 	l.mu.Lock()
 	defer l.mu.Unlock()
+
 	err := errors.New("not all fields are populated")
 	switch {
 	case book.Genres == nil:

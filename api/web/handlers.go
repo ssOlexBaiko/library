@@ -49,6 +49,7 @@ func (h *handler) BooksIndexHandler(w http.ResponseWriter, _ *http.Request) {
 	books, err := h.storage.GetBooks()
 	if err != nil {
 		log.Println(err)
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -56,10 +57,10 @@ func (h *handler) BooksIndexHandler(w http.ResponseWriter, _ *http.Request) {
 	err = json.NewEncoder(w).Encode(books)
 	if err != nil {
 		log.Println(err)
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	// Where is Content-Type?
 }
 
 // BookCreateHandler handles requests with POST method
@@ -153,14 +154,14 @@ func (h *handler) ChangeBookHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, ok := vars["id"]
 	if !ok {
-		// Where is Content-Type?
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	book, err := h.storage.GetBook(id)
 	if err != nil {
-		// Where is Content-Type?
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -177,11 +178,11 @@ func (h *handler) ChangeBookHandler(w http.ResponseWriter, r *http.Request) {
 	book, err = h.storage.ChangeBook(book)
 	if err != nil {
 		if err == storage.ErrNotFound {
-			// Where is Content-Type?
+			w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 			w.WriteHeader(http.StatusNotFound)
 			return
 		}
-		// Where is Content-Type?
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err)
 		return
@@ -189,7 +190,7 @@ func (h *handler) ChangeBookHandler(w http.ResponseWriter, r *http.Request) {
 	err = json.NewEncoder(w).Encode(book)
 	if err != nil {
 		log.Println(err)
-		// Where is Content-Type?
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -221,7 +222,7 @@ func (h *handler) BookFilterHandler(w http.ResponseWriter, r *http.Request) {
 	err = json.NewEncoder(w).Encode(books)
 	if err != nil {
 		log.Println(err)
-		// Where is Content-Type?
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

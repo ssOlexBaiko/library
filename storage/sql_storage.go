@@ -8,7 +8,8 @@ import (
 )
 
 type sqlLibrary struct {
-	sqlStorage *gorm.DB
+	mu      	sync.RWMutex
+	sqlStorage 	*gorm.DB
 }
 
 func (l sqlLibrary) Close() error {
@@ -25,17 +26,25 @@ func NewSQLLibrary(sqlStoragePath string) (*sqlLibrary, error) {
 }
 
 func (l *sqlLibrary) GetBooks() (Books, error) {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+
 	var books Books
 	// SELECT * FROM books
 	return books, l.sqlStorage.Find(&books).Error
 }
 
 func (l *sqlLibrary) CreateBook(book Book) error {
+	l.mu.Lock()
+	defer l.mu.Unlock()
 	book.PrepareToCreate()
 	return l.sqlStorage.Create(&book).Error
 }
 
 func (l *sqlLibrary) GetBook(id string) (Book, error) {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+
 	var book Book
 
 	err := l.sqlStorage.Where(&book, id).Error
@@ -47,6 +56,9 @@ func (l *sqlLibrary) GetBook(id string) (Book, error) {
 }
 
 func (l *sqlLibrary) RemoveBook(id string) error {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
 	query := l.sqlStorage.Where("id = ?", id).Delete(&Book{})
 	if query.Error != nil {
 		return errors.Wrap(query.Error, "can't delete book")
@@ -60,6 +72,9 @@ func (l *sqlLibrary) RemoveBook(id string) error {
 }
 
 func (l *sqlLibrary) ChangeBook(changedBook Book) (Book, error) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
 	var book Book
 	err := l.sqlStorage.Update(&changedBook).Error
 	if err == gorm.ErrRecordNotFound {
@@ -70,6 +85,9 @@ func (l *sqlLibrary) ChangeBook(changedBook Book) (Book, error) {
 }
 
 func (l *sqlLibrary) PriceFilter(filter BookFilter) (Books, error) {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+
 	var books Books
 	if len(filter.Price) <= 1 {
 		return nil, ErrNotValidData
