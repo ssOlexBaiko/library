@@ -3,7 +3,17 @@ package storage
 import (
 	// hook for using Genres as string array in sqlite3
 	"github.com/lib/pq"
+	"github.com/pkg/errors"
 	"github.com/twinj/uuid"
+)
+
+var (
+	// ErrNotFound describes the state when the object is not found in the storage
+	ErrNotFound = errors.New("can't find the book with given ID")
+	// ErrNotValidData describes the state when the object is not valid
+	ErrNotValidData = errors.New("not valid data")
+	// ErrUnsupportedOperation describes the state when the object is an unsupported operation
+	ErrUnsupportedOperation = errors.New("unsupported operation")
 )
 
 // Book describes main data structure in the app

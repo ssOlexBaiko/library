@@ -12,7 +12,7 @@ import (
 
 type library struct {
 	mu      sync.RWMutex // Use the force Luke!
-	storage *os.File   // Here you can put opened os.File object. After that you will be able to implement concurrent safe operations with file storage
+	storage *os.File     // Here you can put opened os.File object. After that you will be able to implement concurrent safe operations with file storage
 }
 
 func (l library) Close() error {

@@ -5,11 +5,12 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/pkg/errors"
+	"sync"
 )
 
 type sqlLibrary struct {
-	mu      	sync.RWMutex
-	sqlStorage 	*gorm.DB
+	mu         sync.RWMutex
+	sqlStorage *gorm.DB
 }
 
 func (l sqlLibrary) Close() error {
@@ -22,7 +23,7 @@ func NewSQLLibrary(sqlStoragePath string) (*sqlLibrary, error) {
 		return nil, err
 	}
 
-	return &sqlLibrary{sqlStorage}, nil
+	return &sqlLibrary{sqlStorage: sqlStorage}, nil
 }
 
 func (l *sqlLibrary) GetBooks() (Books, error) {
@@ -44,10 +45,9 @@ func (l *sqlLibrary) CreateBook(book Book) error {
 func (l *sqlLibrary) GetBook(id string) (Book, error) {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
-
 	var book Book
 
-	err := l.sqlStorage.Where(&book, id).Error
+	err := l.sqlStorage.Where("id = ?", id).First(&book).Error
 	if err == gorm.ErrRecordNotFound {
 		return book, ErrNotFound
 	}

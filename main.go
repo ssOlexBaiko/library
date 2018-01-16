@@ -12,7 +12,7 @@ import (
 
 var (
 	fileLibPath = flag.String("libPath", "storage/storage.json", "set path the storage file")
-	sqlLibPath  = flag.String("libPath", "storage/data.db", "set path the storage file")
+	sqlLibPath  = flag.String("sqlLibPath", "storage/data.db", "set path the storage file")
 )
 
 func main() {
