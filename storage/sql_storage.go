@@ -61,7 +61,7 @@ func (l *sqlLibrary) RemoveBook(id string) error {
 
 func (l *sqlLibrary) ChangeBook(changedBook Book) (Book, error) {
 	var book Book
-	err := l.sqlStorage.Update(&changedBook).Error
+	err := l.sqlStorage.Save(&changedBook).Error
 	if err == gorm.ErrRecordNotFound {
 		return book, ErrNotFound
 	}
