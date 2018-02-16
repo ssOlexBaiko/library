@@ -1,7 +1,6 @@
 package web
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -51,7 +50,7 @@ func NewRouter(handler *handler) *mux.Router {
 
 func myFirstMiddlewareFunc(h http.Handler) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Println("Test middleware")
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		h.ServeHTTP(w, r)
 	})
 }
