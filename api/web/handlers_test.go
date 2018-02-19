@@ -56,10 +56,10 @@ func getRouter(file *os.File) *mux.Router {
 			log.Fatal(err)
 		}
 
-		store = storage.NewSQLLibrary(sqlStorage)
+		store, err = storage.NewSQLLibrary(sqlStorage)
 	} else {
-
-		store = storage.NewLibrary(file)
+		var err error
+		store, err = storage.NewLibrary(file)
 	}
 
 	router := NewRouter(
