@@ -70,6 +70,21 @@ func getTestBooks(t *testing.T) (storage.Books, error) {
 	return books, nil
 }
 
+//go test -bench=. api/web_test.go -cpuprofile=cpu.out -libPath=test_data/test_storage.json
+func BenchmarkGetTestBooks(b *testing.B) {
+	req, err := http.NewRequest("GET", "/books", nil)
+	if err != nil {
+		b.Fatal(err)
+	}
+
+	for i := 0; i < b.N; i++ {
+		rr := httptest.NewRecorder()
+
+		handler := getRouter()
+		handler.ServeHTTP(rr, req)
+	}
+}
+
 func TestIndexHandler(t *testing.T) {
 
 	req, err := http.NewRequest("GET", "/", nil)
