@@ -29,7 +29,8 @@ func NewLibrary(path string) (*library, error) {
 		return nil, err
 	}
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0660)
-	defer file.Close()
+	// https://joeshaw.org/dont-defer-close-on-writable-files/
+	// defer file.Close()
 	if err != nil {
 		return nil, err
 	}

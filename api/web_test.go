@@ -21,8 +21,8 @@ import (
 
 // add flag for setting path to the storage and for using sql db
 var (
-	testLibPath = flag.String("libPath", "test_data/test_storage.json", "set path the storage file")
-	testSQLPath = flag.String("testSQLPath", "test_data/data.db", "use sql db instead of json file")
+	testLibPath = flag.String("libPath", "", "set path the storage file; default: test_data/test_storage.json")
+	testSQLPath = flag.String("testSQLPath", "", "use sql db instead of json file; default: test_data/data.db")
 )
 
 func getRouter() *mux.Router {
@@ -77,10 +77,9 @@ func BenchmarkGetTestBooks(b *testing.B) {
 		b.Fatal(err)
 	}
 
+	handler := getRouter()
 	for i := 0; i < b.N; i++ {
 		rr := httptest.NewRecorder()
-
-		handler := getRouter()
 		handler.ServeHTTP(rr, req)
 	}
 }
