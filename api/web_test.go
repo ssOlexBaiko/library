@@ -70,7 +70,8 @@ func getTestBooks(t *testing.T) (storage.Books, error) {
 	return books, nil
 }
 
-//go test -bench=. api/web_test.go -cpuprofile=cpu.out -libPath=test_data/test_storage.json
+// go test -bench=. api/web_test.go -cpuprofile=cpu.out -libPath=test_data/test_storage.json
+// go tool pprof --svg api.test cpu.out > cpu1.svg
 func BenchmarkGetTestBooks(b *testing.B) {
 	req, err := http.NewRequest("GET", "/books", nil)
 	if err != nil {
