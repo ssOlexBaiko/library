@@ -10,13 +10,18 @@ import (
 	"testing"
 
 	//"github.com/jinzhu/gorm"
-	"github.com/ssOlexBaiko/library/storage"
 	"github.com/ssOlexBaiko/library/api/web"
+	"github.com/ssOlexBaiko/library/storage"
 
 	"github.com/stretchr/testify/assert"
 	//"github.com/stretchr/testify/suite"
-	"github.com/gorilla/mux"
 	"log"
+
+	"io/ioutil"
+
+	"os"
+
+	"github.com/gorilla/mux"
 )
 
 // add flag for setting path to the storage and for using sql db
@@ -29,7 +34,7 @@ func getRouter() *mux.Router {
 	var store web.Storage
 	var err error
 	flag.Parse()
-	if len(*testSQLPath) != 0  {
+	if len(*testSQLPath) != 0 {
 		store, err = storage.NewSQLLibrary(*testSQLPath)
 		if err != nil {
 			log.Fatal(err)
@@ -73,6 +78,9 @@ func getTestBooks(t *testing.T) (storage.Books, error) {
 // go test -bench=. api/web_test.go -cpuprofile=cpu.out -libPath=test_data/test_storage.json
 // go tool pprof --svg api.test cpu.out > cpu1.svg
 func BenchmarkGetTestBooks(b *testing.B) {
+	log.SetOutput(ioutil.Discard)
+	defer log.SetOutput(os.Stderr)
+
 	req, err := http.NewRequest("GET", "/books", nil)
 	if err != nil {
 		b.Fatal(err)

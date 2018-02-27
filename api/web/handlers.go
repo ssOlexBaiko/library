@@ -11,6 +11,8 @@ import (
 	"github.com/twinj/uuid"
 )
 
+//var json = jsoniter.ConfigCompatibleWithStandardLibrary
+
 type handler struct {
 	storage Storage
 }

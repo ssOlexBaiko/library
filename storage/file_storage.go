@@ -1,14 +1,16 @@
 package storage
 
 import (
-	"encoding/json"
 	"errors"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
 	"sync"
+
+	"github.com/json-iterator/go"
 )
+
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
 
 type library struct {
 	mu      sync.RWMutex // Use the force Luke!
@@ -60,12 +62,7 @@ func (l *library) getBooks() (Books, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	file, err := ioutil.ReadAll(l.storage)
-	if err != nil {
-		return nil, err
-	}
-	return books, json.Unmarshal(file, &books)
+	return books, json.NewDecoder(l.storage).Decode(&books)
 }
 
 // CreateBook adds book object into db
