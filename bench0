@@ -1,0 +1,447 @@
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:42][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:42][0m  [36;1m[0.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:41)[0m 
+[33m[2018-02-20 08:12:42][0m  [36;1m[0.00ms][0m  SELECT * FROM "books"  WHERE (id = 'dbc04826-5c86-405a-8701-ca530e0e14c0') ORDER BY "books"."id" ASC LIMIT 1  
+[36;31m[1 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:35)[0m 
+[33m[2018-02-20 08:12:42][0m  [36;1m[3.00ms][0m  INSERT INTO "books" ("id","title","genres","pages","price") VALUES ('5dd04f4b-e129-420c-b76d-50d43b952bde','TestBook','{"test1","test2"}','777','777')  
+[36;31m[1 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[4 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[4 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:50)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[3.00ms][0m  DELETE FROM "books"  WHERE (id = '5dd04f4b-e129-420c-b76d-50d43b952bde')  
+[36;31m[1 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:41)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"  WHERE (id = 'dbc04826-5c86-405a-8701-ca530e0e14c0') ORDER BY "books"."id" ASC LIMIT 1  
+[36;31m[1 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:64)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[2.00ms][0m  UPDATE "books" SET "title" = 'test', "genres" = NULL, "pages" = '0', "price" = '0'  WHERE "books"."id" = 'dbc04826-5c86-405a-8701-ca530e0e14c0'  
+[36;31m[1 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+BenchmarkGetTestBooks-4   	
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[0.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[0.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[0.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[3.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[0.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[0.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:43][0m  [36;1m[0.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:44][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:44][0m  [36;1m[3.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:44][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:44][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:44][0m  [36;1m[2.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:44][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:44][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:44][0m  [36;1m[0.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:44][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:44][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:44][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:44][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:44][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:44][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:44][0m  [36;1m[0.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:44][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:44][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:44][0m  [36;1m[2.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:44][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:44][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:44][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:44][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:44][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:44][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:44][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:44][0m  [36;1m[0.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:44][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:44][0m  [36;1m[0.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:44][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[2.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[2.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[0.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[2.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[2.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[2.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[0.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[2.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[0.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:45][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:46][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+
+[35m(C:/Users/olex/go/src/github.com/ssOlexBaiko/library/storage/sql_storage.go:30)[0m 
+[33m[2018-02-20 08:12:46][0m  [36;1m[1.00ms][0m  SELECT * FROM "books"    
+[36;31m[3 rows affected or returned ][0m 
+     100	  27841593 ns/op
+PASS
+ok  	command-line-arguments	3.452s
